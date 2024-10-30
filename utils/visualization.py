@@ -19,7 +19,8 @@ def create_style_radar_chart(style_scores: dict):
         polar=dict(
             radialaxis=dict(
                 visible=True,
-                range=[0, max_score]  # Use maximum achieved score instead of fixed 12
+                range=[0, max_score],
+                dtick=1  # Force integer steps
             )),
         showlegend=False
     )
