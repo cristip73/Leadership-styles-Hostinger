@@ -91,6 +91,7 @@ def main():
         if 'assessment_complete' in st.session_state and st.session_state.assessment_complete:
             st.success("Assessment completed! View your results in the Results page.")
             if st.button("View Results"):
+                st.query_params["user_id"] = str(st.session_state.user_id)
                 st.switch_page("pages/02_view_results.py")
         else:
             display_question(QUESTIONS[st.session_state.current_question])
