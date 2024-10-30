@@ -2,11 +2,22 @@ from typing import List, Dict, Tuple
 
 class AssessmentScorer:
     def __init__(self):
+        # Style mapping from test metadata
         self.style_mapping = {
-            "1": ["1A", "2D", "5C", "7A", "10B", "11A"],
-            "2": ["2A", "3A", "6D", "8B", "9B", "12A"],
-            "3": ["1B", "3D", "4A", "6A", "10A", "12D"],
-            "4": ["1D", "2B", "4C", "5A", "8A", "11D"]
+            "1": ["1A", "2D", "5C", "7A", "10B", "11A"],  # Directiv
+            "2": ["2A", "3A", "6D", "8B", "9B", "12A"],   # Persuasiv
+            "3": ["1B", "3D", "4A", "6A", "10A", "12D"],  # Participativ
+            "4": ["1D", "2B", "4C", "5A", "8A", "11D"]    # Delegativ
+        }
+        
+        # Adequacy mapping from test metadata
+        self.adequacy_mapping = {
+            "answers": {
+                "a": ["1D", "2B", "3C", "4B", "5A", "6C", "7A", "8C", "9A", "10B", "11A", "12C"],
+                "b": ["1B", "2D", "3B", "4D", "5D", "6A", "7C", "8B", "9D", "10C", "11C", "12A"],
+                "c": ["1C", "2C", "3A", "4A", "5B", "6B", "7D", "8D", "9B", "10A", "11D", "12D"],
+                "d": ["1A", "2A", "3D", "4C", "5C", "6D", "7B", "8A", "9C", "10D", "11B", "12B"]
+            }
         }
         
         self.adequacy_coefficients = {
@@ -26,22 +37,33 @@ class AssessmentScorer:
     def calculate_style_scores(self, responses: Dict[int, str]) -> Tuple[str, str]:
         style_counts = {style: 0 for style in self.style_mapping.keys()}
         
+        # Calculate style scores
         for question, answer in responses.items():
             answer_key = f"{question}{answer}"
             for style, answers in self.style_mapping.items():
                 if answer_key in answers:
                     style_counts[style] += 1
         
-        sorted_styles = sorted(style_counts.items(), key=lambda x: x[1], reverse=True)
+        # Sort styles by count and get primary and secondary styles
+        sorted_styles = sorted(style_counts.items(), key=lambda x: (-x[1], x[0]))
         primary_style = self.style_names[sorted_styles[0][0]]
         secondary_style = self.style_names[sorted_styles[1][0]]
         
         return primary_style, secondary_style
 
     def calculate_adequacy_score(self, responses: Dict[int, str]) -> Tuple[int, str]:
-        total_score = sum(self.adequacy_coefficients[answer.lower()] 
-                         for answer in responses.values())
+        total_score = 0
         
+        for question, answer in responses.items():
+            answer_key = f"{question}{answer}"
+            
+            # Find which adequacy category this answer belongs to
+            for category, answers in self.adequacy_mapping["answers"].items():
+                if answer_key in answers:
+                    total_score += self.adequacy_coefficients[category]
+                    break
+        
+        # Determine adequacy level based on score
         if total_score >= 20:
             level = "Excelent"
         elif total_score >= 10:
@@ -50,3 +72,20 @@ class AssessmentScorer:
             level = "Necesită dezvoltare"
             
         return total_score, level
+
+    def get_style_description(self, style_name: str) -> str:
+        style_descriptions = {
+            "Directiv": "Stil orientat spre sarcini și control direct",
+            "Persuasiv": "Stil orientat spre convingere și explicații",
+            "Participativ": "Stil orientat spre colaborare și decizie comună",
+            "Delegativ": "Stil orientat spre autonomie și delegare"
+        }
+        return style_descriptions.get(style_name, "")
+
+    def get_adequacy_description(self, score: int) -> str:
+        if score >= 20:
+            return "Adaptabilitate foarte bună la context"
+        elif score >= 10:
+            return "Adaptabilitate moderată, cu potențial de dezvoltare"
+        else:
+            return "Adaptabilitate redusă, necesită îmbunătățire semnificativă"
