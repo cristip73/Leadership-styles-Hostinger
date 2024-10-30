@@ -1,0 +1,110 @@
+{
+  "testMetadata": {
+    "name": "Management Style and Adequacy Assessment",
+    "version": "1.0",
+    "questions": 12,
+    "optionsPerQuestion": 4,
+    "scoringTypes": ["style", "adequacy"]
+  },
+
+  "administrationRules": {
+    "requiredFields": ["firstName", "lastName", "email"],
+    "questionPresentation": {
+      "type": "oneAtATime",
+      "allowBack": true,
+      "allowSkip": false,
+      "requireOneAnswer": true
+    },
+    "timeLimit": null
+  },
+
+  "questions": [
+    {
+      "id": 1,
+      "scenario": "Sunteţi conducătorul unei noi echipe. V-aţi întâlnit cu membrii ei, iar aceştia s-au arătat cu toţii receptivi. Competenţa şi performanţa lor prezintă numeroase lacune.",
+      "options": {
+        "A": "Îi precizaţi, fiecăruia în parte, sfera de responsabilitate, procedurile de urmat şi termenele de execuţie. Îi cereţi în mod ferm să le respecte şi obţineţi angajamentul său în acest sens.",
+        "B": "Convocaţi o şedinţă, în scopul de a restabili motivaţia membrilor echipei. Recunoaşteţi capacităţile şi calităţile fiecăruia dintre ei şi faceţi apel la spiritul lor de echipă.",
+        "C": "Faceţi, cu fiecare dintre colaboratorii dumneavoastră, o analiză detaliată a rezultatelor sale personale, apoi stabiliţi, de comun acord, obiective şi termene de execuţie realiste.",
+        "D": "Nu doriţi să interveniţi „oficial", dar altfel nu se poate! Le daţi de înţeles tuturor că aşteptaţi din partea lor un reviriment rapid, care le va permite să îndrepte situaţia până nu e prea târziu."
+      }
+    }
+  ],
+
+  "scoringMatrix": {
+    "styleMapping": {
+      "1": {
+        "1": ["1A", "2D", "5C", "7A", "10B", "11A"],
+        "2": ["2A", "3A", "6D", "8B", "9B", "12A"],
+        "3": ["1B", "3D", "4A", "6A", "10A", "12D"],
+        "4": ["1D", "2B", "4C", "5A", "8A", "11D"]
+      }
+    },
+    "adequacyMapping": {
+      "answers": {
+        "a": ["1D", "2B", "3C", "4B", "5A", "6C", "7A", "8C", "9A", "10B", "11A", "12C"],
+        "b": ["1B", "2D", "3B", "4D", "5D", "6A", "7C", "8B", "9D", "10C", "11C", "12A"],
+        "c": ["1C", "2C", "3A", "4A", "5B", "6B", "7D", "8D", "9B", "10A", "11D", "12D"],
+        "d": ["1A", "2A", "3D", "4C", "5C", "6D", "7B", "8A", "9C", "10D", "11B", "12B"]
+      },
+      "coefficients": {
+        "a": -2,
+        "b": -1,
+        "c": 1,
+        "d": 2
+      }
+    }
+  },
+
+  "interpretationRules": {
+    "styles": {
+      "1": {
+        "name": "Directiv",
+        "description": "Stil orientat spre sarcini și control direct",
+        "threshold": "Cel mai mare scor din cele 4 coloane"
+      },
+      "2": {
+        "name": "Persuasiv",
+        "description": "Stil orientat spre convingere și explicații",
+        "threshold": "Al doilea cel mai mare scor"
+      },
+      "3": {
+        "name": "Participativ",
+        "description": "Stil orientat spre colaborare și decizie comună",
+        "threshold": "Al treilea cel mai mare scor"
+      },
+      "4": {
+        "name": "Delegativ",
+        "description": "Stil orientat spre autonomie și delegare",
+        "threshold": "Cel mai mic scor"
+      }
+    },
+    "adequacy": {
+      "ranges": [
+        {
+          "min": 20,
+          "max": null,
+          "level": "Excelent",
+          "description": "Adaptabilitate foarte bună la context"
+        },
+        {
+          "min": 10,
+          "max": 19,
+          "level": "Bun",
+          "description": "Adaptabilitate moderată, cu potențial de dezvoltare"
+        },
+        {
+          "min": null,
+          "max": 9,
+          "level": "Necesită dezvoltare",
+          "description": "Adaptabilitate redusă, necesită îmbunătățire semnificativă"
+        }
+      ]
+    }
+  },
+
+  "scoringAlgorithm": {
+    "calculateStyle": "1. Map each answer to style columns using styleMapping\n2. Count frequency in each column\n3. Identify primary style (highest frequency)\n4. Identify secondary style (second highest frequency)\n5. Return both styles and their scores",
+    "calculateAdequacy": "1. Map each answer to adequacy columns using adequacyMapping\n2. Count frequency in each column\n3. Multiply frequencies by coefficients\n4. Sum all weighted scores\n5. Return total adequacy score and corresponding level"
+  }
+}
