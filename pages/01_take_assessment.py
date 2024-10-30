@@ -24,9 +24,16 @@ def registration_form():
         
         if st.form_submit_button("Start Assessment"):
             if all([first_name, last_name, email]):
-                user_id = st.session_state.db.create_user(first_name, last_name, email)
-                st.session_state.user_id = user_id
-                return True
+                try:
+                    user_id = st.session_state.db.create_user(first_name, last_name, email)
+                    st.session_state.user_id = user_id
+                    return True
+                except Exception as e:
+                    if "duplicate key" in str(e):
+                        st.error("This email is already registered. Please use a different email.")
+                    else:
+                        st.error("An error occurred during registration. Please try again.")
+                    return False
             else:
                 st.error("Please fill in all fields")
     return False
@@ -62,7 +69,6 @@ def display_question(question_data):
                 st.rerun()  # Force rerun to show next question
             else:
                 calculate_and_save_results()
-                st.rerun()
 
 def calculate_and_save_results():
     scorer = AssessmentScorer()
@@ -77,8 +83,10 @@ def calculate_and_save_results():
         adequacy_level
     )
     
+    # Set the completion state before redirecting
     st.session_state.assessment_complete = True
-    # Redirect to results page
+    
+    # Use the newer query_params API for redirection
     st.query_params["user_id"] = str(st.session_state.user_id)
     st.switch_page("pages/02_view_results.py")
 
