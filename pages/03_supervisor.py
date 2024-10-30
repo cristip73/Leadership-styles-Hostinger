@@ -1,9 +1,11 @@
 import streamlit as st
 import pandas as pd
 import io
-from utils.visualization import create_statistics_charts
+from utils.visualization import create_statistics_charts, create_style_radar_chart, create_adequacy_gauge, create_comparative_radar_chart
 import plotly.express as px
+import plotly.graph_objects as go
 from models.database import Database
+from utils.scoring import AssessmentScorer
 
 if 'db' not in st.session_state:
     st.session_state.db = Database()
@@ -125,6 +127,85 @@ def display_individual_results(df):
                 key='responses-download'
             )
 
+def display_comparative_analysis(df):
+    st.write("### Comparative Analysis")
+    
+    # Select users to compare
+    selected_users = st.multiselect(
+        "Select participants to compare (2-4 participants):",
+        options=df.apply(lambda x: f"{x['first_name']} {x['last_name']} ({x['email']})", axis=1),
+        max_selections=4
+    )
+    
+    if len(selected_users) >= 2:
+        # Get data for selected users
+        selected_data = df[df.apply(lambda x: f"{x['first_name']} {x['last_name']} ({x['email']})" in selected_users, axis=1)]
+        
+        # Create comparison visualizations
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.write("#### Management Style Comparison")
+            scorer = AssessmentScorer()
+            
+            # Get style scores for each user
+            style_scores_list = []
+            for _, user in selected_data.iterrows():
+                responses = st.session_state.db.get_user_responses(user['id'])
+                user_scores = scorer.get_all_style_scores(responses)
+                style_scores_list.append({
+                    'name': f"{user['first_name']} {user['last_name']}",
+                    'scores': user_scores
+                })
+            
+            # Create and display comparative radar chart
+            comp_radar = create_comparative_radar_chart(style_scores_list)
+            st.plotly_chart(comp_radar)
+        
+        with col2:
+            st.write("#### Adequacy Score Comparison")
+            fig = go.Figure()
+            
+            for _, user in selected_data.iterrows():
+                fig.add_trace(go.Bar(
+                    name=f"{user['first_name']} {user['last_name']}",
+                    x=['Adequacy Score'],
+                    y=[user['adequacy_score']],
+                    text=[user['adequacy_level']],
+                    textposition='auto',
+                ))
+            
+            fig.update_layout(barmode='group')
+            st.plotly_chart(fig)
+        
+        # Detailed comparison table
+        st.write("#### Detailed Comparison")
+        comparison_data = []
+        for _, user in selected_data.iterrows():
+            comparison_data.append({
+                'Name': f"{user['first_name']} {user['last_name']}",
+                'Primary Style': user['primary_style'],
+                'Secondary Style': user['secondary_style'],
+                'Adequacy Score': user['adequacy_score'],
+                'Adequacy Level': user['adequacy_level']
+            })
+        
+        comparison_df = pd.DataFrame(comparison_data)
+        st.dataframe(comparison_df)
+        
+        # Export comparison
+        if st.button("Export Comparison"):
+            csv = comparison_df.to_csv(index=False)
+            st.download_button(
+                "Download Comparison CSV",
+                csv,
+                "management_style_comparison.csv",
+                "text/csv",
+                key='comparison-download'
+            )
+    else:
+        st.info("Please select at least 2 participants to compare")
+
 def main():
     st.title("Supervisor Dashboard")
     
@@ -154,13 +235,16 @@ def main():
             )
             
             # Main content tabs
-            tab1, tab2 = st.tabs(["Statistics", "Individual Results"])
+            tab1, tab2, tab3 = st.tabs(["Statistics", "Individual Results", "Comparative Analysis"])
             
             with tab1:
                 display_statistics(results_df)
             
             with tab2:
                 display_individual_results(results_df)
+                
+            with tab3:
+                display_comparative_analysis(results_df)
         else:
             st.info("No assessment results available yet")
     else:

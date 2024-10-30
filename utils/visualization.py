@@ -68,3 +68,42 @@ def create_statistics_charts(results_df: pd.DataFrame):
     )
     
     return style_pie, adequacy_hist
+
+def create_comparative_radar_chart(style_scores_list: list):
+    """
+    Creates a radar chart comparing management styles of multiple users
+    
+    Args:
+        style_scores_list: List of dicts containing name and scores for each user
+            [{'name': 'User Name', 'scores': {'Directiv': 3, 'Persuasiv': 2, ...}}, ...]
+    """
+    fig = go.Figure()
+    
+    # Find max score across all users
+    max_score = 0
+    for user_data in style_scores_list:
+        max_score = max(max_score, max(user_data['scores'].values()))
+    
+    # Add trace for each user
+    for user_data in style_scores_list:
+        categories = list(user_data['scores'].keys())
+        values = list(user_data['scores'].values())
+        
+        fig.add_trace(go.Scatterpolar(
+            r=values + [values[0]],
+            theta=categories + [categories[0]],
+            name=user_data['name'],
+            fill='toself'
+        ))
+    
+    fig.update_layout(
+        polar=dict(
+            radialaxis=dict(
+                visible=True,
+                range=[0, max_score],
+                dtick=1  # Force integer steps
+            )),
+        showlegend=True
+    )
+    
+    return fig
