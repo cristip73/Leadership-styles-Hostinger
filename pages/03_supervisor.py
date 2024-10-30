@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import io
-from utils.visualization import create_statistics_charts, create_comparative_radar_chart
 import plotly.graph_objects as go
 from models.database import Database
 from utils.scoring import AssessmentScorer
@@ -73,7 +72,11 @@ def display_statistics(df):
     
     with col1:
         st.write("#### Management Style Distribution")
-        style_pie, _ = create_statistics_charts(df)
+        style_counts = df['primary_style'].value_counts()
+        style_pie = go.Figure(data=[go.Pie(
+            labels=style_counts.index,
+            values=style_counts.values
+        )])
         st.plotly_chart(style_pie)
     
     with col2:
@@ -156,62 +159,55 @@ def display_comparative_analysis(df):
         # Get data for selected users
         selected_data = df[df.apply(lambda x: f"{x['first_name']} {x['last_name']} ({x['email']})" in selected_users, axis=1)]
         
-        # Create comparison visualizations
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.write("#### Management Style Comparison")
-            scorer = AssessmentScorer()
-            
-            # Get style scores for each user
-            style_scores_list = []
-            for _, user in selected_data.iterrows():
-                responses = st.session_state.db.get_user_responses(user['id'])
-                user_scores = scorer.get_all_style_scores(responses)
-                style_scores_list.append({
-                    'name': f"{user['first_name']} {user['last_name']}",
-                    'scores': user_scores
-                })
-            
-            # Create and display comparative radar chart
-            comp_radar = create_comparative_radar_chart(style_scores_list)
-            st.plotly_chart(comp_radar)
-        
-        with col2:
-            st.write("#### Adequacy Score Comparison")
-            fig = go.Figure()
-            
-            for _, user in selected_data.iterrows():
-                fig.add_trace(go.Bar(
-                    name=f"{user['first_name']} {user['last_name']}",
-                    x=['Adequacy Score'],
-                    y=[user['adequacy_score']],
-                    text=[f"{int(user['adequacy_score'])} - {user['adequacy_level']}"],
-                    textposition='auto',
-                ))
-            
-            fig.update_layout(
-                barmode='group',
-                yaxis=dict(
-                    dtick=1  # Force integer steps
-                )
-            )
-            st.plotly_chart(fig)
-        
-        # Detailed comparison table
-        st.write("#### Detailed Comparison")
+        # Create comparison table
+        scorer = AssessmentScorer()
         comparison_data = []
+        
         for _, user in selected_data.iterrows():
+            responses = st.session_state.db.get_user_responses(user['id'])
+            style_scores = scorer.get_all_style_scores(responses)
+            
             comparison_data.append({
                 'Name': f"{user['first_name']} {user['last_name']}",
-                'Primary Style': user['primary_style'],
-                'Secondary Style': user['secondary_style'],
-                'Adequacy Score': int(user['adequacy_score']),  # Ensure integer display
+                'Directiv': style_scores['Directiv'],
+                'Persuasiv': style_scores['Persuasiv'],
+                'Participativ': style_scores['Participativ'],
+                'Delegativ': style_scores['Delegativ'],
+                'Adequacy Score': int(user['adequacy_score']),
                 'Adequacy Level': user['adequacy_level']
             })
         
+        # Display the comparison table
+        st.write("#### Management Style Scores")
         comparison_df = pd.DataFrame(comparison_data)
-        st.dataframe(comparison_df)
+        st.dataframe(comparison_df.style.format({
+            'Directiv': '{:.0f}',
+            'Persuasiv': '{:.0f}',
+            'Participativ': '{:.0f}',
+            'Delegativ': '{:.0f}',
+            'Adequacy Score': '{:.0f}'
+        }))
+        
+        # Display adequacy score comparison
+        st.write("#### Adequacy Score Comparison")
+        fig = go.Figure()
+        
+        for _, user in selected_data.iterrows():
+            fig.add_trace(go.Bar(
+                name=f"{user['first_name']} {user['last_name']}",
+                x=['Adequacy Score'],
+                y=[user['adequacy_score']],
+                text=[f"{int(user['adequacy_score'])} - {user['adequacy_level']}"],
+                textposition='auto',
+            ))
+        
+        fig.update_layout(
+            barmode='group',
+            yaxis=dict(
+                dtick=1  # Force integer steps
+            )
+        )
+        st.plotly_chart(fig)
         
         # Export comparison
         if st.button("Export Comparison"):
