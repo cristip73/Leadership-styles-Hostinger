@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from utils.visualization import create_statistics_charts
 import plotly.express as px
+from models.database import Database
 
 if 'db' not in st.session_state:
     st.session_state.db = Database()

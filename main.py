@@ -32,7 +32,8 @@ def main():
     - Detailed interpretation of your results
     """)
 
-    st.button("Start Assessment", type="primary", use_container_width=True)
+    if st.button("Start Assessment", type="primary", use_container_width=True):
+        st.switch_page("pages/01_take_assessment.py")
 
 if __name__ == "__main__":
     main()
