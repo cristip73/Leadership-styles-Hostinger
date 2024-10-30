@@ -56,7 +56,7 @@ def display_question(question_data):
                 st.session_state.current_question += 1
             else:
                 calculate_and_save_results()
-                st.experimental_rerun()
+                st.rerun()
 
 def calculate_and_save_results():
     scorer = AssessmentScorer()
@@ -80,7 +80,7 @@ def main():
     
     if not st.session_state.user_id:
         if registration_form():
-            st.experimental_rerun()
+            st.rerun()
     else:
         if 'assessment_complete' in st.session_state and st.session_state.assessment_complete:
             st.success("Assessment completed! View your results in the Results page.")
