@@ -48,7 +48,7 @@ def export_to_excel(df):
             'Metric': ['Total Assessments', 'Average Adequacy Score', 'Most Common Style'],
             'Value': [
                 len(df),
-                f"{df['adequacy_score'].mean():.1f}",
+                f"{int(df['adequacy_score'].mean())}",
                 df['primary_style'].mode()[0]
             ]
         }
@@ -81,7 +81,7 @@ def display_statistics(df):
     
     with col2:
         st.write("#### Adequacy Score Distribution")
-        adequacy_box = go.Figure(data=[go.Box(y=df['adequacy_score'])])
+        adequacy_box = go.Figure(data=[go.Box(y=df['adequacy_score'].apply(int))])
         adequacy_box.update_layout(yaxis_title='Adequacy Score')
         st.plotly_chart(adequacy_box)
     
@@ -91,7 +91,7 @@ def display_statistics(df):
     with metrics_col1:
         st.metric("Total Assessments", len(df))
     with metrics_col2:
-        st.metric("Average Adequacy Score", f"{df['adequacy_score'].mean():.1f}")
+        st.metric("Average Adequacy Score", f"{int(df['adequacy_score'].mean())}")
     with metrics_col3:
         st.metric("Most Common Style", df['primary_style'].mode()[0])
 
@@ -111,7 +111,7 @@ def display_individual_results(df):
         **Email:** {user_data['email']}  
         **Primary Style:** {user_data['primary_style']}  
         **Secondary Style:** {user_data['secondary_style']}  
-        **Adequacy Score:** {user_data['adequacy_score']}  
+        **Adequacy Score:** {int(user_data['adequacy_score'])}  
         **Adequacy Level:** {user_data['adequacy_level']}  
         **Assessment Date:** {user_data['created_at'].strftime('%Y-%m-%d %H:%M')}
         """)
@@ -180,12 +180,14 @@ def display_comparative_analysis(df):
         # Display the comparison table
         st.write("#### Management Style Scores")
         comparison_df = pd.DataFrame(comparison_data)
+        
+        # Format the table to show integer values
         st.dataframe(comparison_df.style.format({
-            'Directiv': '{:.0f}',
-            'Persuasiv': '{:.0f}',
-            'Participativ': '{:.0f}',
-            'Delegativ': '{:.0f}',
-            'Adequacy Score': '{:.0f}'
+            'Directiv': '{:d}',
+            'Persuasiv': '{:d}',
+            'Participativ': '{:d}',
+            'Delegativ': '{:d}',
+            'Adequacy Score': '{:d}'
         }))
         
         # Display adequacy score comparison
@@ -196,7 +198,7 @@ def display_comparative_analysis(df):
             fig.add_trace(go.Bar(
                 name=f"{user['first_name']} {user['last_name']}",
                 x=['Adequacy Score'],
-                y=[user['adequacy_score']],
+                y=[int(user['adequacy_score'])],
                 text=[f"{int(user['adequacy_score'])} - {user['adequacy_level']}"],
                 textposition='auto',
             ))

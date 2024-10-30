@@ -69,7 +69,8 @@ class AssessmentScorer:
                 if answer_key in answers:
                     style_scores[self.style_names[style_num]] += 1
         
-        return style_scores
+        # Convert all scores to integers
+        return {style: int(score) for style, score in style_scores.items()}
 
     def calculate_adequacy_score(self, responses: Dict[int, str]) -> Tuple[int, str]:
         total_score = 0
@@ -91,7 +92,7 @@ class AssessmentScorer:
         else:
             level = "Necesită dezvoltare"
             
-        return total_score, level
+        return int(total_score), level
 
     def get_style_description(self, style_name: str) -> str:
         style_descriptions = {
