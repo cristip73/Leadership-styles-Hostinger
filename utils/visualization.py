@@ -20,12 +20,7 @@ def create_style_radar_chart(style_scores: dict):
             radialaxis=dict(
                 visible=True,
                 range=[0, max_score],
-                dtick=1,  # Force integer steps
-                showticklabels=True,
-                tickmode='linear',
-                tick0=0,
-                ticks='outside',
-                ticklen=5
+                dtick=1  # Force integer steps
             )),
         showlegend=False
     )
@@ -34,16 +29,11 @@ def create_style_radar_chart(style_scores: dict):
 
 def create_adequacy_gauge(score: int):
     fig = go.Figure(go.Indicator(
-        mode="gauge+number",
-        value=int(score),  # Force integer
-        number={'suffix': '', 'valueformat': 'd'},  # No decimals
-        domain={'x': [0, 1], 'y': [0, 1]},
-        gauge={
-            'axis': {
-                'range': [-24, 24],
-                'dtick': 1,  # Force integer steps
-                'tickmode': 'linear'
-            },
+        mode = "gauge+number",
+        value = score,
+        domain = {'x': [0, 1], 'y': [0, 1]},
+        gauge = {
+            'axis': {'range': [-24, 24]},
             'steps': [
                 {'range': [-24, 9], 'color': "lightgray"},
                 {'range': [10, 19], 'color': "lightblue"},
@@ -52,10 +42,11 @@ def create_adequacy_gauge(score: int):
             'threshold': {
                 'line': {'color': "red", 'width': 4},
                 'thickness': 0.75,
-                'value': int(score)  # Force integer
+                'value': score
             }
         }
     ))
+    
     return fig
 
 def create_statistics_charts(results_df: pd.DataFrame):
@@ -73,23 +64,26 @@ def create_statistics_charts(results_df: pd.DataFrame):
     adequacy_hist.update_layout(
         title_text='Distribution of Adequacy Scores',
         xaxis_title_text='Score',
-        yaxis_title_text='Count',
-        xaxis=dict(
-            dtick=1,  # Force integer steps
-            tickmode='linear'
-        )
+        yaxis_title_text='Count'
     )
     
     return style_pie, adequacy_hist
 
 def create_comparative_radar_chart(style_scores_list: list):
+    """
+    Creates a radar chart comparing management styles of multiple users
+    
+    Args:
+        style_scores_list: List of dicts containing name and scores for each user
+            [{'name': 'User Name', 'scores': {'Directiv': 3, 'Persuasiv': 2, ...}}, ...]
+    """
     fig = go.Figure()
     
-    # Find max score across all users for consistent scaling
+    # Find max score across all users
     max_score = 0
     for user_data in style_scores_list:
         max_score = max(max_score, max(user_data['scores'].values()))
-        
+    
     # Add trace for each user
     for user_data in style_scores_list:
         categories = list(user_data['scores'].keys())
@@ -107,14 +101,8 @@ def create_comparative_radar_chart(style_scores_list: list):
             radialaxis=dict(
                 visible=True,
                 range=[0, max_score],
-                dtick=1,  # Force integer steps
-                showticklabels=True,
-                tickmode='linear',
-                tick0=0,
-                ticks='outside',
-                ticklen=5
-            )
-        ),
+                dtick=1  # Force integer steps
+            )),
         showlegend=True
     )
     
