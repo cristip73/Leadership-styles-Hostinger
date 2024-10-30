@@ -5,6 +5,9 @@ def create_style_radar_chart(style_scores: dict):
     categories = list(style_scores.keys())
     values = list(style_scores.values())
     
+    # Calculate maximum score achieved
+    max_score = max(values)
+    
     fig = go.Figure(data=go.Scatterpolar(
         r=values + [values[0]],
         theta=categories + [categories[0]],
@@ -16,7 +19,7 @@ def create_style_radar_chart(style_scores: dict):
         polar=dict(
             radialaxis=dict(
                 visible=True,
-                range=[0, 12]  # Maximum possible score is 12
+                range=[0, max_score]  # Use maximum achieved score instead of fixed 12
             )),
         showlegend=False
     )
