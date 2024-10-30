@@ -171,11 +171,16 @@ def display_comparative_analysis(df):
                     name=f"{user['first_name']} {user['last_name']}",
                     x=['Adequacy Score'],
                     y=[user['adequacy_score']],
-                    text=[user['adequacy_level']],
+                    text=[f"{int(user['adequacy_score'])} - {user['adequacy_level']}"],
                     textposition='auto',
                 ))
             
-            fig.update_layout(barmode='group')
+            fig.update_layout(
+                barmode='group',
+                yaxis=dict(
+                    dtick=1  # Force integer steps
+                )
+            )
             st.plotly_chart(fig)
         
         # Detailed comparison table
@@ -186,7 +191,7 @@ def display_comparative_analysis(df):
                 'Name': f"{user['first_name']} {user['last_name']}",
                 'Primary Style': user['primary_style'],
                 'Secondary Style': user['secondary_style'],
-                'Adequacy Score': user['adequacy_score'],
+                'Adequacy Score': int(user['adequacy_score']),  # Ensure integer display
                 'Adequacy Level': user['adequacy_level']
             })
         
