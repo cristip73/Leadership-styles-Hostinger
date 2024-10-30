@@ -78,6 +78,9 @@ def calculate_and_save_results():
     )
     
     st.session_state.assessment_complete = True
+    # Redirect to results page
+    st.query_params["user_id"] = str(st.session_state.user_id)
+    st.switch_page("pages/02_view_results.py")
 
 def main():
     st.title("Management Style Assessment")

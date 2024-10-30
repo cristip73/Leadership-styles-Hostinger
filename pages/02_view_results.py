@@ -131,8 +131,12 @@ def main():
                 display_results(results)
             else:
                 st.error("Results not found. Please complete the assessment first.")
+                if st.button("Take Assessment", type="primary"):
+                    st.switch_page("pages/01_take_assessment.py")
         except ValueError:
             st.error("Invalid result URL. Please use the link provided after completing the assessment.")
+            if st.button("Take Assessment", type="primary"):
+                st.switch_page("pages/01_take_assessment.py")
     else:
         st.warning("Please complete the assessment to view your results")
         if st.button("Take Assessment", type="primary"):
