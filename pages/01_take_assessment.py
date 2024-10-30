@@ -35,6 +35,10 @@ def display_question(question_data):
     st.write(f"### Question {question_data['id']}")
     st.write(question_data['scenario'])
     
+    # Use session state for the radio button to persist selection
+    if f"q_{question_data['id']}" not in st.session_state:
+        st.session_state[f"q_{question_data['id']}"] = None
+    
     answer = st.radio(
         "Choose your response:",
         options=["A", "B", "C", "D"],
@@ -45,6 +49,7 @@ def display_question(question_data):
     col1, col2, col3 = st.columns([1,1,1])
     with col2:
         if st.button("Next Question" if st.session_state.current_question < 11 else "Submit"):
+            # Save the response
             st.session_state.responses[question_data['id']] = answer
             st.session_state.db.save_response(
                 st.session_state.user_id,
@@ -54,6 +59,7 @@ def display_question(question_data):
             
             if st.session_state.current_question < 11:
                 st.session_state.current_question += 1
+                st.rerun()  # Force rerun to show next question
             else:
                 calculate_and_save_results()
                 st.rerun()
@@ -84,6 +90,8 @@ def main():
     else:
         if 'assessment_complete' in st.session_state and st.session_state.assessment_complete:
             st.success("Assessment completed! View your results in the Results page.")
+            if st.button("View Results"):
+                st.switch_page("pages/02_view_results.py")
         else:
             display_question(QUESTIONS[st.session_state.current_question])
             
