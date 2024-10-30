@@ -56,8 +56,8 @@ class Database:
         user_id = uuid.uuid4()
         with self.conn.cursor() as cur:
             cur.execute(
-                "INSERT INTO users (id, first_name, last_name, email) VALUES (%s, %s, %s, %s) RETURNING id",
-                (user_id, first_name, last_name, email)
+                "INSERT INTO users (id, first_name, last_name, email) VALUES (%s::uuid, %s, %s, %s) RETURNING id",
+                (str(user_id), first_name, last_name, email)
             )
             self.conn.commit()
             return user_id
@@ -66,8 +66,8 @@ class Database:
         response_id = uuid.uuid4()
         with self.conn.cursor() as cur:
             cur.execute(
-                "INSERT INTO responses (id, user_id, question_id, answer) VALUES (%s, %s, %s, %s)",
-                (response_id, user_id, question_id, answer)
+                "INSERT INTO responses (id, user_id, question_id, answer) VALUES (%s::uuid, %s::uuid, %s, %s)",
+                (str(response_id), str(user_id), question_id, answer)
             )
             self.conn.commit()
 
@@ -77,8 +77,8 @@ class Database:
             cur.execute(
                 """INSERT INTO results 
                 (id, user_id, primary_style, secondary_style, adequacy_score, adequacy_level)
-                VALUES (%s, %s, %s, %s, %s, %s)""",
-                (result_id, user_id, primary_style, secondary_style, adequacy_score, adequacy_level)
+                VALUES (%s::uuid, %s::uuid, %s, %s, %s, %s)""",
+                (str(result_id), str(user_id), primary_style, secondary_style, adequacy_score, adequacy_level)
             )
             self.conn.commit()
 
@@ -87,8 +87,8 @@ class Database:
             cur.execute(
                 """SELECT u.*, r.* FROM users u 
                 JOIN results r ON u.id = r.user_id 
-                WHERE u.id = %s""",
-                (user_id,)
+                WHERE u.id = %s::uuid""",
+                (str(user_id),)
             )
             return dict(cur.fetchone())
 
