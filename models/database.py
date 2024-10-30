@@ -125,3 +125,19 @@ class Database:
         except Exception as e:
             self.conn.rollback()
             raise e
+
+    def get_user_responses(self, user_id):
+        try:
+            with self.conn.cursor(cursor_factory=DictCursor) as cur:
+                cur.execute(
+                    '''SELECT r.*, u.first_name, u.last_name, u.email 
+                    FROM responses r
+                    JOIN users u ON r.user_id = u.id
+                    WHERE r.user_id = %s::uuid
+                    ORDER BY r.question_id''',
+                    (str(user_id),)
+                )
+                return [dict(row) for row in cur.fetchall()]
+        except Exception as e:
+            self.conn.rollback()
+            raise e

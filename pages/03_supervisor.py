@@ -40,6 +40,14 @@ def export_to_excel(df):
         summary_df = pd.DataFrame(summary_data)
         summary_df.to_excel(writer, sheet_name='Summary', index=False)
         
+        # Add individual responses sheets
+        for _, user in df.iterrows():
+            responses = st.session_state.db.get_user_responses(user['id'])
+            if responses:
+                responses_df = pd.DataFrame(responses)
+                sheet_name = f"Responses_{user['first_name']}"[:31]  # Excel limitation
+                responses_df.to_excel(writer, sheet_name=sheet_name, index=False)
+        
     return output.getvalue()
 
 def display_statistics(df):
@@ -98,6 +106,23 @@ def display_individual_results(df):
                 f"result_{user_data['first_name']}_{user_data['last_name']}.csv",
                 "text/csv",
                 key='individual-download'
+            )
+        
+        # Add responses section
+        st.write("#### Individual Responses")
+        responses = st.session_state.db.get_user_responses(user_data['id'])
+        if responses:
+            responses_df = pd.DataFrame(responses)
+            st.dataframe(responses_df[['question_id', 'answer']])
+            
+            # Export responses
+            csv = responses_df.to_csv(index=False)
+            st.download_button(
+                "Download Individual Responses CSV",
+                csv,
+                f"responses_{user_data['first_name']}_{user_data['last_name']}.csv",
+                "text/csv",
+                key='responses-download'
             )
 
 def main():
