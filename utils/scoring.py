@@ -51,6 +51,26 @@ class AssessmentScorer:
         
         return primary_style, secondary_style
 
+    def get_all_style_scores(self, responses: List[Dict]) -> Dict[str, int]:
+        style_scores = {
+            "Directiv": 0,
+            "Persuasiv": 0,
+            "Participativ": 0,
+            "Delegativ": 0
+        }
+        
+        # Convert responses to the format needed for scoring
+        response_dict = {r['question_id']: r['answer'] for r in responses}
+        
+        # Calculate points for each style
+        for question, answer in response_dict.items():
+            answer_key = f"{question}{answer}"
+            for style_num, answers in self.style_mapping.items():
+                if answer_key in answers:
+                    style_scores[self.style_names[style_num]] += 1
+        
+        return style_scores
+
     def calculate_adequacy_score(self, responses: Dict[int, str]) -> Tuple[int, str]:
         total_score = 0
         

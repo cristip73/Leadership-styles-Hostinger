@@ -79,21 +79,27 @@ def display_results(results):
     
     scorer = AssessmentScorer()
     
+    # Get all style scores
+    responses = st.session_state.db.get_user_responses(results['user_id'])
+    all_scores = scorer.get_all_style_scores(responses)
+    
     col1, col2 = st.columns(2)
     
     with col1:
         st.write("### Management Style Profile")
-        radar_chart = create_style_radar_chart(
-            results['primary_style'],
-            results['secondary_style']
-        )
+        radar_chart = create_style_radar_chart(all_scores)
         st.plotly_chart(radar_chart, use_container_width=True)
+        
+        # Add point breakdown
+        st.write("### Style Points Breakdown")
+        for style, score in all_scores.items():
+            st.write(f"**{style}:** {score} points")
     
     with col2:
         st.write("### Adequacy Score")
         gauge_chart = create_adequacy_gauge(results['adequacy_score'])
         st.plotly_chart(gauge_chart, use_container_width=True)
-    
+        
     # Detailed interpretations
     display_style_interpretation(scorer, results['primary_style'], results['secondary_style'])
     display_adequacy_interpretation(scorer, results['adequacy_score'], results['adequacy_level'])

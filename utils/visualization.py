@@ -1,17 +1,7 @@
 import plotly.graph_objects as go
 import pandas as pd
 
-def create_style_radar_chart(primary_style: str, secondary_style: str):
-    style_scores = {
-        "Directiv": 0,
-        "Persuasiv": 0,
-        "Participativ": 0,
-        "Delegativ": 0
-    }
-    
-    style_scores[primary_style] = 1.0
-    style_scores[secondary_style] = 0.7
-    
+def create_style_radar_chart(style_scores: dict):
     categories = list(style_scores.keys())
     values = list(style_scores.values())
     
@@ -26,7 +16,7 @@ def create_style_radar_chart(primary_style: str, secondary_style: str):
         polar=dict(
             radialaxis=dict(
                 visible=True,
-                range=[0, 1]
+                range=[0, 12]  # Maximum possible score is 12
             )),
         showlegend=False
     )
