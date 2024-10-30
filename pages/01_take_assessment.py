@@ -35,16 +35,9 @@ def display_question(question_data):
     st.write(f"### Question {question_data['id']}")
     st.write(question_data['scenario'])
     
-    answer = st.radio(
-        "Choose your response:",
-        options=["A", "B", "C", "D"],
-        format_func=lambda x: question_data['options'][x],
-        key=f"q_{question_data['id']}"
-    )
-    
-    col1, col2, col3 = st.columns([1,1,1])
-    with col2:
-        if st.button("Next Question" if st.session_state.current_question < 11 else "Submit"):
+    def on_answer_change():
+        if 'last_answer' in st.session_state:
+            answer = st.session_state.last_answer
             st.session_state.responses[question_data['id']] = answer
             st.session_state.db.save_response(
                 st.session_state.user_id,
@@ -54,9 +47,21 @@ def display_question(question_data):
             
             if st.session_state.current_question < 11:
                 st.session_state.current_question += 1
+                st.rerun()
             else:
                 calculate_and_save_results()
                 st.rerun()
+    
+    st.radio(
+        "Choose your response:",
+        options=["A", "B", "C", "D"],
+        format_func=lambda x: question_data['options'][x],
+        key="last_answer",
+        on_change=on_answer_change
+    )
+    
+    st.progress(st.session_state.current_question / 11)
+    st.write(f"Question {st.session_state.current_question + 1} of 12")
 
 def calculate_and_save_results():
     scorer = AssessmentScorer()
