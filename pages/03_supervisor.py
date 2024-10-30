@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 from utils.visualization import create_statistics_charts
 import plotly.express as px
+from models.database import Database
+from io import BytesIO
+from datetime import datetime
 
 if 'db' not in st.session_state:
     st.session_state.db = Database()
@@ -10,8 +13,69 @@ def load_results_data():
     results = st.session_state.db.get_all_results()
     return pd.DataFrame(results)
 
+def export_to_excel(df):
+    output = BytesIO()
+    
+    # Create Excel writer
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        # Summary sheet
+        summary_data = {
+            'Metric': [
+                'Total Evaluări',
+                'Scor Mediu de Adecvare',
+                'Stil Predominant',
+                'Data Raport'
+            ],
+            'Valoare': [
+                len(df),
+                f"{df['adequacy_score'].mean():.1f}",
+                df['primary_style'].mode()[0],
+                datetime.now().strftime('%Y-%m-%d %H:%M')
+            ]
+        }
+        pd.DataFrame(summary_data).to_excel(writer, sheet_name='Sumar', index=False)
+        
+        # Individual results sheet
+        results_df = df[[
+            'first_name', 'last_name', 'email', 
+            'primary_style', 'secondary_style',
+            'adequacy_score', 'adequacy_level',
+            'created_at'
+        ]].copy()
+        
+        # Rename columns for better readability
+        results_df.columns = [
+            'Prenume', 'Nume', 'Email',
+            'Stil Principal', 'Stil Secundar',
+            'Scor Adecvare', 'Nivel Adecvare',
+            'Data Evaluării'
+        ]
+        
+        results_df.to_excel(writer, sheet_name='Rezultate Individuale', index=False)
+        
+        # Style distribution sheet
+        style_dist = pd.DataFrame(df['primary_style'].value_counts()).reset_index()
+        style_dist.columns = ['Stil de Management', 'Număr de Persoane']
+        style_dist.to_excel(writer, sheet_name='Distribuție Stiluri', index=False)
+        
+        # Adequacy scores distribution
+        adequacy_dist = df['adequacy_level'].value_counts().reset_index()
+        adequacy_dist.columns = ['Nivel Adecvare', 'Număr de Persoane']
+        adequacy_dist.to_excel(writer, sheet_name='Distribuție Adecvare', index=False)
+    
+    return output.getvalue()
+
 def display_statistics(df):
     st.write("### Statistici Generale")
+    
+    # Export button at the top
+    if st.download_button(
+        label="📊 Exportă Raport Excel",
+        data=export_to_excel(df),
+        file_name=f"raport_management_{datetime.now().strftime('%Y%m%d')}.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    ):
+        st.success("Raportul a fost descărcat cu succes!")
     
     col1, col2 = st.columns(2)
     
@@ -55,6 +119,16 @@ def display_individual_results(df):
         **Nivel de Adecvare:** {user_data['adequacy_level']}  
         **Data Evaluării:** {user_data['created_at'].strftime('%Y-%m-%d %H:%M')}
         """)
+        
+        # Individual export button
+        user_df = pd.DataFrame([user_data]).copy()
+        if st.download_button(
+            label="📄 Exportă Rezultat Individual",
+            data=export_to_excel(user_df),
+            file_name=f"rezultat_{user_data['first_name']}_{user_data['last_name']}_{datetime.now().strftime('%Y%m%d')}.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        ):
+            st.success("Rezultatul individual a fost descărcat cu succes!")
 
 def main():
     st.title("Tablou de Bord Supervizor")
