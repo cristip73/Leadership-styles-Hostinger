@@ -54,7 +54,7 @@ class Database:
                     )
                 """)
                 
-                # Results table
+                # Results table with style score columns
                 cur.execute("""
                     CREATE TABLE IF NOT EXISTS results (
                         id UUID PRIMARY KEY,
@@ -63,6 +63,10 @@ class Database:
                         secondary_style VARCHAR(50),
                         adequacy_score INTEGER,
                         adequacy_level VARCHAR(50),
+                        directiv_score INTEGER,
+                        persuasiv_score INTEGER,
+                        participativ_score INTEGER,
+                        delegativ_score INTEGER,
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )
                 """)
@@ -106,15 +110,17 @@ class Database:
             self.conn.rollback()
             raise e
 
-    def save_results(self, user_id, primary_style, secondary_style, adequacy_score, adequacy_level):
+    def save_results(self, user_id, primary_style, secondary_style, adequacy_score, adequacy_level, style_scores):
         try:
             result_id = uuid.uuid4()
             with self.conn.cursor() as cur:
                 cur.execute(
                     """INSERT INTO results 
-                    (id, user_id, primary_style, secondary_style, adequacy_score, adequacy_level)
-                    VALUES (%s::uuid, %s::uuid, %s, %s, %s, %s)""",
-                    (str(result_id), str(user_id), primary_style, secondary_style, adequacy_score, adequacy_level)
+                    (id, user_id, primary_style, secondary_style, adequacy_score, adequacy_level,
+                     directiv_score, persuasiv_score, participativ_score, delegativ_score)
+                    VALUES (%s::uuid, %s::uuid, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                    (str(result_id), str(user_id), primary_style, secondary_style, adequacy_score, adequacy_level,
+                     style_scores['Directiv'], style_scores['Persuasiv'], style_scores['Participativ'], style_scores['Delegativ'])
                 )
                 self.conn.commit()
         except Exception as e:

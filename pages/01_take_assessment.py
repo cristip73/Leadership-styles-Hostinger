@@ -82,13 +82,18 @@ def calculate_and_save_results():
     primary_style, secondary_style = scorer.calculate_style_scores(st.session_state.responses)
     adequacy_score, adequacy_level = scorer.calculate_adequacy_score(st.session_state.responses)
     
-    # Save results to database
+    # Get all style scores
+    responses_list = st.session_state.db.get_user_responses(st.session_state.user_id)
+    style_scores = scorer.get_all_style_scores(responses_list)
+    
+    # Save results to database with style scores
     st.session_state.db.save_results(
         st.session_state.user_id,
         primary_style,
         secondary_style,
         adequacy_score,
-        adequacy_level
+        adequacy_level,
+        style_scores
     )
     
     # Store results directly in session state
@@ -97,7 +102,8 @@ def calculate_and_save_results():
         'primary_style': primary_style,
         'secondary_style': secondary_style,
         'adequacy_score': adequacy_score,
-        'adequacy_level': adequacy_level
+        'adequacy_level': adequacy_level,
+        **style_scores  # Add style scores to session state
     }
     
     # Set completion flag
