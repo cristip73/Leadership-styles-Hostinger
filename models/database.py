@@ -2,6 +2,7 @@ import os
 import psycopg2
 from psycopg2.extras import DictCursor
 import uuid
+import re
 
 class Database:
     def __init__(self):
@@ -17,13 +18,27 @@ class Database:
     def create_tables(self):
         try:
             with self.conn.cursor() as cur:
+                # Drop UNIQUE constraint from email
+                cur.execute("""
+                    DO $$ 
+                    BEGIN 
+                        IF EXISTS (
+                            SELECT 1 FROM information_schema.table_constraints 
+                            WHERE constraint_name = 'users_email_key'
+                            AND table_name = 'users'
+                        ) THEN
+                            ALTER TABLE users DROP CONSTRAINT users_email_key;
+                        END IF;
+                    END $$;
+                """)
+
                 # Users table
                 cur.execute("""
                     CREATE TABLE IF NOT EXISTS users (
                         id UUID PRIMARY KEY,
                         first_name VARCHAR(100),
                         last_name VARCHAR(100),
-                        email VARCHAR(255) UNIQUE,
+                        email VARCHAR(255),
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )
                 """)
@@ -56,7 +71,15 @@ class Database:
             self.conn.rollback()
             raise e
 
+    def validate_email(self, email: str) -> bool:
+        """Validate email format using regex"""
+        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        return bool(re.match(pattern, email))
+
     def create_user(self, first_name, last_name, email):
+        if not self.validate_email(email):
+            raise ValueError("Invalid email format")
+            
         try:
             user_id = uuid.uuid4()
             with self.conn.cursor() as cur:

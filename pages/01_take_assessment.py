@@ -18,24 +18,31 @@ def init_session_state():
 def registration_form():
     st.write("### Please enter your information to begin")
     with st.form("registration"):
-        first_name = st.text_input("First Name")
-        last_name = st.text_input("Last Name")
-        email = st.text_input("Email")
+        first_name = st.text_input("First Name", key="first_name")
+        last_name = st.text_input("Last Name", key="last_name")
+        email = st.text_input("Email", key="email")
         
         if st.form_submit_button("Start Assessment"):
             if all([first_name, last_name, email]):
                 try:
+                    if not st.session_state.db.validate_email(email):
+                        st.error("Please enter a valid email address")
+                        return False
+                        
                     user_id = st.session_state.db.create_user(first_name, last_name, email)
                     st.session_state.user_id = user_id
+                    st.session_state.current_question = 0  # Reset question counter for new assessment
+                    st.session_state.responses = {}  # Clear previous responses
                     return True
+                except ValueError as e:
+                    st.error(str(e))
+                    return False
                 except Exception as e:
-                    if "duplicate key" in str(e):
-                        st.error("This email is already registered. Please use a different email.")
-                    else:
-                        st.error("An error occurred during registration. Please try again.")
+                    st.error("An error occurred during registration. Please try again.")
                     return False
             else:
                 st.error("Please fill in all fields")
+                return False
     return False
 
 def display_question(question_data):
@@ -109,8 +116,11 @@ def main():
             st.rerun()
     else:
         if 'assessment_complete' in st.session_state and st.session_state.assessment_complete:
-            st.success("Assessment completed! View your results in the Results page.")
-            if st.button("View Results"):
+            if st.button("Take Another Assessment"):
+                st.session_state.user_id = None
+                st.session_state.assessment_complete = False
+                st.rerun()
+            elif st.button("View Previous Results"):
                 st.switch_page("pages/02_view_results.py")
         else:
             display_question(QUESTIONS[st.session_state.current_question])
