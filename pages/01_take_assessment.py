@@ -75,6 +75,7 @@ def calculate_and_save_results():
     primary_style, secondary_style = scorer.calculate_style_scores(st.session_state.responses)
     adequacy_score, adequacy_level = scorer.calculate_adequacy_score(st.session_state.responses)
     
+    # Save results to database
     st.session_state.db.save_results(
         st.session_state.user_id,
         primary_style,
@@ -83,11 +84,19 @@ def calculate_and_save_results():
         adequacy_level
     )
     
-    # Set the completion state before redirecting
+    # Store results directly in session state
+    st.session_state.assessment_results = {
+        'user_id': st.session_state.user_id,
+        'primary_style': primary_style,
+        'secondary_style': secondary_style,
+        'adequacy_score': adequacy_score,
+        'adequacy_level': adequacy_level
+    }
+    
+    # Set completion flag
     st.session_state.assessment_complete = True
     
-    # Use the newer query_params API for redirection
-    st.query_params["user_id"] = str(st.session_state.user_id)
+    # Show results directly
     st.switch_page("pages/02_view_results.py")
 
 def main():
@@ -102,7 +111,6 @@ def main():
         if 'assessment_complete' in st.session_state and st.session_state.assessment_complete:
             st.success("Assessment completed! View your results in the Results page.")
             if st.button("View Results"):
-                st.query_params["user_id"] = str(st.session_state.user_id)
                 st.switch_page("pages/02_view_results.py")
         else:
             display_question(QUESTIONS[st.session_state.current_question])
