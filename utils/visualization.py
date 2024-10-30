@@ -20,14 +20,8 @@ def create_style_radar_chart(style_scores: dict):
             radialaxis=dict(
                 visible=True,
                 range=[0, max_score],
-                dtick=1,  # Force integer steps
-                showline=True,
-                gridcolor='#DCDCDC'
-            ),
-            gridshape='circular',
-            bgcolor='rgba(0,0,0,0)'
-        ),
-        paper_bgcolor='rgba(0,0,0,0)',
+                dtick=1  # Force integer steps
+            )),
         showlegend=False
     )
     
@@ -36,13 +30,10 @@ def create_style_radar_chart(style_scores: dict):
 def create_adequacy_gauge(score: int):
     fig = go.Figure(go.Indicator(
         mode = "gauge+number",
-        value = int(score),  # Force integer value
+        value = score,
         domain = {'x': [0, 1], 'y': [0, 1]},
         gauge = {
-            'axis': {
-                'range': [-24, 24],
-                'dtick': 1  # Force integer steps
-            },
+            'axis': {'range': [-24, 24]},
             'steps': [
                 {'range': [-24, 9], 'color': "lightgray"},
                 {'range': [10, 19], 'color': "lightblue"},
@@ -51,10 +42,11 @@ def create_adequacy_gauge(score: int):
             'threshold': {
                 'line': {'color': "red", 'width': 4},
                 'thickness': 0.75,
-                'value': int(score)
+                'value': score
             }
         }
     ))
+    
     return fig
 
 def create_statistics_charts(results_df: pd.DataFrame):
@@ -109,14 +101,8 @@ def create_comparative_radar_chart(style_scores_list: list):
             radialaxis=dict(
                 visible=True,
                 range=[0, max_score],
-                dtick=1,  # Force integer steps
-                showline=True,
-                gridcolor='#DCDCDC'
-            ),
-            gridshape='circular',
-            bgcolor='rgba(0,0,0,0)'
-        ),
-        paper_bgcolor='rgba(0,0,0,0)',
+                dtick=1  # Force integer steps
+            )),
         showlegend=True
     )
     
