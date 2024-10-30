@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import io
 from utils.visualization import create_statistics_charts
 import plotly.express as px
 from models.database import Database
@@ -10,6 +11,36 @@ if 'db' not in st.session_state:
 def load_results_data():
     results = st.session_state.db.get_all_results()
     return pd.DataFrame(results)
+
+def export_to_excel(df):
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        # Export main results
+        df.to_excel(writer, sheet_name='All Results', index=False)
+        
+        # Export style statistics
+        style_stats = pd.DataFrame(df['primary_style'].value_counts()).reset_index()
+        style_stats.columns = ['Style', 'Count']
+        style_stats.to_excel(writer, sheet_name='Style Statistics', index=False)
+        
+        # Export adequacy statistics
+        adequacy_stats = df['adequacy_level'].value_counts().reset_index()
+        adequacy_stats.columns = ['Level', 'Count']
+        adequacy_stats.to_excel(writer, sheet_name='Adequacy Statistics', index=False)
+        
+        # Add summary statistics
+        summary_data = {
+            'Metric': ['Total Assessments', 'Average Adequacy Score', 'Most Common Style'],
+            'Value': [
+                len(df),
+                f"{df['adequacy_score'].mean():.1f}",
+                df['primary_style'].mode()[0]
+            ]
+        }
+        summary_df = pd.DataFrame(summary_data)
+        summary_df.to_excel(writer, sheet_name='Summary', index=False)
+        
+    return output.getvalue()
 
 def display_statistics(df):
     st.write("### Overall Statistics")
@@ -56,6 +87,18 @@ def display_individual_results(df):
         **Adequacy Level:** {user_data['adequacy_level']}  
         **Assessment Date:** {user_data['created_at'].strftime('%Y-%m-%d %H:%M')}
         """)
+        
+        # Export individual result
+        if st.button("Export Individual Result"):
+            individual_df = pd.DataFrame([user_data])
+            csv = individual_df.to_csv(index=False)
+            st.download_button(
+                "Download Individual Result CSV",
+                csv,
+                f"result_{user_data['first_name']}_{user_data['last_name']}.csv",
+                "text/csv",
+                key='individual-download'
+            )
 
 def main():
     st.title("Supervisor Dashboard")
@@ -64,6 +107,28 @@ def main():
         results_df = load_results_data()
         
         if len(results_df) > 0:
+            # Export options
+            st.sidebar.write("### Export Options")
+            
+            # Export all data
+            excel_data = export_to_excel(results_df)
+            st.sidebar.download_button(
+                label="Download Full Report (Excel)",
+                data=excel_data,
+                file_name="management_assessment_report.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+            
+            # Export CSV
+            csv_data = results_df.to_csv(index=False)
+            st.sidebar.download_button(
+                label="Download Raw Data (CSV)",
+                data=csv_data,
+                file_name="management_assessment_data.csv",
+                mime="text/csv"
+            )
+            
+            # Main content tabs
             tab1, tab2 = st.tabs(["Statistics", "Individual Results"])
             
             with tab1:
