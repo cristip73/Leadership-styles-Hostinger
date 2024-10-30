@@ -4,10 +4,10 @@ class AssessmentScorer:
     def __init__(self):
         # Style mapping from test metadata
         self.style_mapping = {
-            "1": ["1A", "2D", "3C", "4B", "5C", "6B", "7A", "8C", "9C", "10B", "11A", "12C"],  # First style
-            "2": ["1C", "2A", "3A", "4D", "5B", "6D", "7C", "8B", "9B", "10D", "11C", "12A"],  # Second style
-            "3": ["1B", "2C", "3D", "4A", "5D", "6A", "7B", "8D", "9D", "10A", "11B", "12D"],  # Third style
-            "4": ["1D", "2B", "3B", "4C", "5A", "6C", "7D", "8A", "9A", "10C", "11D", "12B"]   # Fourth style
+            "1": ["1A", "2D", "3C", "4B", "5C", "6B", "7A", "8C", "9C", "10B", "11A", "12C"],  # Stil 1 (Directiv)
+            "2": ["1C", "2A", "3A", "4D", "5B", "6D", "7C", "8B", "9B", "10D", "11C", "12A"],  # Stil 2 (Persuasiv)
+            "3": ["1B", "2C", "3D", "4A", "5D", "6A", "7B", "8D", "9D", "10A", "11B", "12D"],  # Stil 3 (Participativ)
+            "4": ["1D", "2B", "3B", "4C", "5A", "6C", "7D", "8A", "9A", "10C", "11D", "12B"]   # Stil 4 (Delegativ)
         }
         
         # Adequacy mapping from test metadata
