@@ -19,7 +19,7 @@ def create_style_radar_chart(primary_style: str, secondary_style: str):
         r=values + [values[0]],
         theta=categories + [categories[0]],
         fill='toself',
-        name='Management Style Profile'
+        name='Profil Stil de Management'
     ))
     
     fig.update_layout(
@@ -38,8 +38,9 @@ def create_adequacy_gauge(score: int):
         mode = "gauge+number",
         value = score,
         domain = {'x': [0, 1], 'y': [0, 1]},
+        title = {'text': "Scor de Adecvare"},
         gauge = {
-            'axis': {'range': [-24, 24]},
+            'axis': {'range': [-24, 24], 'ticktext': ['Necesită dezvoltare', 'Bun', 'Excelent']},
             'steps': [
                 {'range': [-24, 9], 'color': "lightgray"},
                 {'range': [10, 19], 'color': "lightblue"},
@@ -60,7 +61,8 @@ def create_statistics_charts(results_df: pd.DataFrame):
     
     style_pie = go.Figure(data=[go.Pie(
         labels=style_counts.index,
-        values=style_counts.values
+        values=style_counts.values,
+        title="Distribuția Stilurilor de Management"
     )])
     
     adequacy_hist = go.Figure(data=[go.Histogram(
@@ -68,9 +70,9 @@ def create_statistics_charts(results_df: pd.DataFrame):
     )])
     
     adequacy_hist.update_layout(
-        title_text='Distribution of Adequacy Scores',
-        xaxis_title_text='Score',
-        yaxis_title_text='Count'
+        title_text='Distribuția Scorurilor de Adecvare',
+        xaxis_title_text='Scor',
+        yaxis_title_text='Frecvență'
     )
     
     return style_pie, adequacy_hist
