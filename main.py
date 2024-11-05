@@ -3,7 +3,7 @@ from models.database import Database
 import uuid
 
 st.set_page_config(
-    page_title="Management Style Assessment",
+    page_title="Evaluare Stil de Management",
     page_icon="📊",
     layout="wide"
 )
@@ -13,26 +13,26 @@ if 'db' not in st.session_state:
     st.session_state.db = Database()
 
 def main():
-    st.title("Management Style Assessment")
+    st.title("Evaluare Stil de Management")
     st.write("""
-    Welcome to the Management Style and Adequacy Assessment tool. 
-    This assessment will help you understand your management style and its effectiveness.
+    Bine ați venit la instrumentul de evaluare a stilului de management și adecvării. 
+    Această evaluare vă va ajuta să înțelegeți stilul dumneavoastră de management și eficacitatea acestuia.
     """)
 
     st.markdown("""
-    ### Instructions:
-    1. The assessment consists of 12 scenario-based questions
-    2. Each question has 4 possible responses
-    3. Choose the response that best reflects how you would act in each situation
-    4. Complete all questions to receive your results
+    ### Instrucțiuni:
+    1. Evaluarea constă în 12 întrebări bazate pe scenarii
+    2. Fiecare întrebare are 4 răspunsuri posibile
+    3. Alegeți răspunsul care reflectă cel mai bine modul în care ați acționa în fiecare situație
+    4. Completați toate întrebările pentru a primi rezultatele
     
-    ### What you'll learn:
-    - Your primary and secondary management styles
-    - Your management adequacy score
-    - Detailed interpretation of your results
+    ### Ce veți afla:
+    - Stilurile dumneavoastră primare și secundare de management
+    - Scorul de adecvare al managementului
+    - Interpretarea detaliată a rezultatelor
     """)
 
-    if st.button("Start Assessment", type="primary", use_container_width=True):
+    if st.button("Începeți Evaluarea", type="primary", use_container_width=True):
         st.switch_page("pages/01_take_assessment.py")
 
 if __name__ == "__main__":
