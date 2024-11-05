@@ -23,14 +23,24 @@ def check_supervisor_password():
                     st.error("Incorrect password")
             st.stop()
 
+def safe_convert_to_int(value):
+    """Safely convert any value to integer, returning 0 for NaN/None values."""
+    try:
+        if pd.isna(value):
+            return 0
+        return int(float(value))
+    except (ValueError, TypeError):
+        return 0
+
 def load_results_data():
     results = st.session_state.db.get_all_results()
     df = pd.DataFrame(results)
-    # Convert style scores to integers
-    score_columns = ['directiv_score', 'persuasiv_score', 'participativ_score', 'delegativ_score']
+    
+    # Convert style scores to integers, handling NaN values
+    score_columns = ['directiv_score', 'persuasiv_score', 'participativ_score', 'delegativ_score', 'adequacy_score']
     for col in score_columns:
         if col in df.columns:
-            df[col] = df[col].astype(int)
+            df[col] = df[col].apply(safe_convert_to_int)
     return df
 
 def export_to_excel(df):
@@ -54,8 +64,8 @@ def export_to_excel(df):
             'Metric': ['Total Assessments', 'Average Adequacy Score', 'Most Common Style'],
             'Value': [
                 len(df),
-                f"{int(df['adequacy_score'].mean())}",
-                df['primary_style'].mode()[0]
+                f"{safe_convert_to_int(df['adequacy_score'].mean())}",
+                df['primary_style'].mode()[0] if not df['primary_style'].empty else 'N/A'
             ]
         }
         summary_df = pd.DataFrame(summary_data)
@@ -87,7 +97,9 @@ def display_statistics(df):
     
     with col2:
         st.write("#### Adequacy Score Distribution")
-        adequacy_box = go.Figure(data=[go.Box(y=df['adequacy_score'].apply(int))])
+        adequacy_box = go.Figure(data=[go.Box(
+            y=df['adequacy_score'].apply(safe_convert_to_int)
+        )])
         adequacy_box.update_layout(yaxis_title='Adequacy Score')
         st.plotly_chart(adequacy_box)
     
@@ -97,13 +109,17 @@ def display_statistics(df):
     with metrics_col1:
         st.metric("Total Assessments", len(df))
     with metrics_col2:
-        st.metric("Average Adequacy Score", f"{int(df['adequacy_score'].mean())}")
+        st.metric("Average Adequacy Score", safe_convert_to_int(df['adequacy_score'].mean()))
     with metrics_col3:
-        st.metric("Most Common Style", df['primary_style'].mode()[0])
+        st.metric("Most Common Style", df['primary_style'].mode()[0] if not df['primary_style'].empty else 'N/A')
 
 def display_individual_results(df):
     st.write("### Individual Results")
     
+    if df.empty:
+        st.info("No results available")
+        return
+        
     selected_user = st.selectbox(
         "Select participant:",
         options=df.apply(lambda x: f"{x['first_name']} {x['last_name']} ({x['email']})", axis=1)
@@ -117,7 +133,7 @@ def display_individual_results(df):
         **Email:** {user_data['email']}  
         **Primary Style:** {user_data['primary_style']}  
         **Secondary Style:** {user_data['secondary_style']}  
-        **Adequacy Score:** {int(user_data['adequacy_score'])}  
+        **Adequacy Score:** {safe_convert_to_int(user_data['adequacy_score'])}  
         **Adequacy Level:** {user_data['adequacy_level']}  
         **Assessment Date:** {user_data['created_at'].strftime('%Y-%m-%d %H:%M')}
         """)
@@ -154,6 +170,10 @@ def display_individual_results(df):
 def display_comparative_analysis(df):
     st.write("### Comparative Analysis")
     
+    if df.empty:
+        st.info("No results available for comparison")
+        return
+        
     # Select users to compare
     selected_users = st.multiselect(
         "Select participants to compare (2-4 participants):",
@@ -171,11 +191,11 @@ def display_comparative_analysis(df):
         for _, user in selected_data.iterrows():
             comparison_data.append({
                 'Name': f"{user['first_name']} {user['last_name']}",
-                'Directiv': int(user['directiv_score']),
-                'Persuasiv': int(user['persuasiv_score']),
-                'Participativ': int(user['participativ_score']),
-                'Delegativ': int(user['delegativ_score']),
-                'Adequacy Score': int(user['adequacy_score']),
+                'Directiv': safe_convert_to_int(user['directiv_score']),
+                'Persuasiv': safe_convert_to_int(user['persuasiv_score']),
+                'Participativ': safe_convert_to_int(user['participativ_score']),
+                'Delegativ': safe_convert_to_int(user['delegativ_score']),
+                'Adequacy Score': safe_convert_to_int(user['adequacy_score']),
                 'Adequacy Level': user['adequacy_level']
             })
         
@@ -185,8 +205,6 @@ def display_comparative_analysis(df):
         
         # Format all numeric columns as integers
         numeric_cols = ['Directiv', 'Persuasiv', 'Participativ', 'Delegativ', 'Adequacy Score']
-        for col in numeric_cols:
-            comparison_df[col] = comparison_df[col].astype(int)
         
         # Display the table with custom formatting
         st.dataframe(
@@ -204,11 +222,12 @@ def display_comparative_analysis(df):
         fig = go.Figure()
         
         for _, user in selected_data.iterrows():
+            adequacy_score = safe_convert_to_int(user['adequacy_score'])
             fig.add_trace(go.Bar(
                 name=f"{user['first_name']} {user['last_name']}",
                 x=['Adequacy Score'],
-                y=[int(user['adequacy_score'])],
-                text=[f"{int(user['adequacy_score'])} - {user['adequacy_level']}"],
+                y=[adequacy_score],
+                text=[f"{adequacy_score} - {user['adequacy_level']}"],
                 textposition='auto',
             ))
         
@@ -240,43 +259,46 @@ def main():
     check_supervisor_password()
     
     if st.session_state.db:
-        results_df = load_results_data()
-        
-        if len(results_df) > 0:
-            # Export options
-            st.sidebar.write("### Export Options")
+        try:
+            results_df = load_results_data()
             
-            # Export all data
-            excel_data = export_to_excel(results_df)
-            st.sidebar.download_button(
-                label="Download Full Report (Excel)",
-                data=excel_data,
-                file_name="management_assessment_report.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
-            
-            # Export CSV
-            csv_data = results_df.to_csv(index=False)
-            st.sidebar.download_button(
-                label="Download Raw Data (CSV)",
-                data=csv_data,
-                file_name="management_assessment_data.csv",
-                mime="text/csv"
-            )
-            
-            # Main content tabs
-            tab1, tab2, tab3 = st.tabs(["Statistics", "Individual Results", "Comparative Analysis"])
-            
-            with tab1:
-                display_statistics(results_df)
-            
-            with tab2:
-                display_individual_results(results_df)
+            if len(results_df) > 0:
+                # Export options
+                st.sidebar.write("### Export Options")
                 
-            with tab3:
-                display_comparative_analysis(results_df)
-        else:
-            st.info("No assessment results available yet")
+                # Export all data
+                excel_data = export_to_excel(results_df)
+                st.sidebar.download_button(
+                    label="Download Full Report (Excel)",
+                    data=excel_data,
+                    file_name="management_assessment_report.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )
+                
+                # Export CSV
+                csv_data = results_df.to_csv(index=False)
+                st.sidebar.download_button(
+                    label="Download Raw Data (CSV)",
+                    data=csv_data,
+                    file_name="management_assessment_data.csv",
+                    mime="text/csv"
+                )
+                
+                # Main content tabs
+                tab1, tab2, tab3 = st.tabs(["Statistics", "Individual Results", "Comparative Analysis"])
+                
+                with tab1:
+                    display_statistics(results_df)
+                
+                with tab2:
+                    display_individual_results(results_df)
+                    
+                with tab3:
+                    display_comparative_analysis(results_df)
+            else:
+                st.info("No assessment results available yet")
+        except Exception as e:
+            st.error(f"An error occurred: {str(e)}")
     else:
         st.error("Database connection error")
 
