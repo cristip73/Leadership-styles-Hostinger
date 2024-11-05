@@ -84,12 +84,12 @@ class AssessmentScorer:
                     total_score += self.adequacy_coefficients[category]
                     break
         
-        # Determine adequacy level based on score
-        if total_score >= 20:
+        # Determine adequacy level based on updated score ranges
+        if total_score >= 20 and total_score <= 24:
             level = "Excelent"
-        elif total_score >= 10:
+        elif total_score >= 10 and total_score <= 19:
             level = "Bun"
-        else:
+        else:  # -24 to 9
             level = "Necesită dezvoltare"
             
         return int(total_score), level
@@ -132,30 +132,30 @@ Stil orientat spre autonomie și împuternicire, caracterizat prin:
         return style_descriptions.get(style_name, "")
 
     def get_adequacy_description(self, score: int) -> str:
-        if score >= 20:
+        if score >= 20 and score <= 24:
             return """
-Adaptabilitate foarte bună la context, demonstrată prin:
-- Capacitate excelentă de a adapta stilul de conducere
-- Înțelegere profundă a nevoilor echipei
-- Flexibilitate maximă în abordarea situațiilor
-- Eficacitate ridicată în diverse contexte
-- Abilități superioare de leadership situațional
+Nivel excelent de adaptabilitate (scor 20-24):
+- Capacitate excepțională de adaptare a stilului de conducere
+- Înțelegere profundă și intuitivă a nevoilor echipei
+- Flexibilitate remarcabilă în abordarea situațiilor diverse
+- Eficacitate constantă în toate contextele de leadership
+- Abilități superioare de management situațional
             """
-        elif score >= 10:
+        elif score >= 10 and score <= 19:
             return """
-Adaptabilitate moderată, cu potențial de dezvoltare, caracterizată prin:
-- Capacitate bună de adaptare în situații familiare
-- Înțelegere de bază a nevoilor echipei
-- Flexibilitate moderată în abordări
+Nivel bun de adaptabilitate (scor 10-19):
+- Capacitate bună de adaptare în majoritatea situațiilor
+- Înțelegere solidă a dinamicii echipei
+- Flexibilitate adecvată în abordări manageriale
+- Eficacitate constantă în contexte familiare
+- Potențial demonstrat pentru dezvoltare continuă
+            """
+        else:  # -24 to 9
+            return """
+Nivel care necesită dezvoltare (scor -24 la 9):
+- Adaptabilitate limitată la situații diverse
+- Oportunități semnificative de îmbunătățire
+- Tendință de rigiditate în abordarea managerială
 - Eficacitate variabilă în funcție de context
-- Potențial de îmbunătățire a abilităților de leadership
-            """
-        else:
-            return """
-Adaptabilitate redusă, necesită îmbunătățire semnificativă, manifestată prin:
-- Dificultăți în adaptarea stilului de conducere
-- Înțelegere limitată a nevoilor echipei
-- Rigiditate în abordarea situațiilor
-- Eficacitate scăzută în contexte variate
-- Necesitatea dezvoltării abilităților de leadership situațional
+- Necesită dezvoltarea abilităților de management situațional
             """
