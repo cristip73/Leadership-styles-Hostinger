@@ -10,69 +10,16 @@ if 'db' not in st.session_state:
 def display_style_interpretation(scorer, primary_style, secondary_style):
     st.write("### Management Style Analysis")
     
-    st.write("#### Primary Style:", primary_style)
+    st.write("#### Stil Principal:", primary_style)
     st.write(scorer.get_style_description(primary_style))
     st.write("""
-    This is your dominant management approach, reflecting your natural tendencies in leadership situations.
-    You are most likely to use this style when facing familiar scenarios or when under pressure.
     """)
     
-    st.write("#### Secondary Style:", secondary_style)
+    st.write("#### Stil Secundar:", secondary_style)
     st.write(scorer.get_style_description(secondary_style))
     st.write("""
-    This is your backup management approach, which you tend to use when your primary style isn't effective.
-    Having a strong secondary style indicates flexibility in your management approach.
     """)
 
-def display_adequacy_interpretation(scorer, score, level):
-    st.write("### Adequacy Analysis")
-    
-    st.write(f"#### Overall Score: {score}")
-    st.write(f"#### Level: {level}")
-    st.write(scorer.get_adequacy_description(score))
-    
-    st.write("### What This Means")
-    if score >= 20:
-        st.write("""
-        - Excellent ability to adapt your management style to different situations
-        - Strong understanding of when to use different leadership approaches
-        - High effectiveness in various management scenarios
-        """)
-    elif score >= 10:
-        st.write("""
-        - Good basic understanding of situational leadership
-        - Room for improvement in identifying the most effective approach
-        - Consider developing greater flexibility in your management style
-        """)
-    else:
-        st.write("""
-        - Opportunity to develop more adaptable management approaches
-        - Focus on recognizing different situations requiring different styles
-        - Consider leadership development training or mentoring
-        """)
-
-def display_development_recommendations(score):
-    st.write("### Development Recommendations")
-    
-    if score >= 20:
-        st.write("""
-        1. Share your expertise with others through mentoring
-        2. Take on more complex leadership challenges
-        3. Document your successful approaches for training others
-        """)
-    elif score >= 10:
-        st.write("""
-        1. Practice identifying situational cues that suggest different management approaches
-        2. Seek feedback from team members about your management style
-        3. Experiment with different leadership approaches in low-risk situations
-        """)
-    else:
-        st.write("""
-        1. Focus on developing awareness of different management situations
-        2. Study the characteristics of different leadership styles
-        3. Work with a mentor to improve your situational awareness
-        4. Practice adapting your style in controlled situations
-        """)
 
 def display_results(results):
     st.title("Your Assessment Results")
@@ -102,8 +49,6 @@ def display_results(results):
         
     # Detailed interpretations
     display_style_interpretation(AssessmentScorer(), results['primary_style'], results['secondary_style'])
-    display_adequacy_interpretation(AssessmentScorer(), results['adequacy_score'], results['adequacy_level'])
-    display_development_recommendations(results['adequacy_score'])
     
     # Download results option
     st.download_button(
