@@ -17,13 +17,16 @@ def main():
     
     # Introduction text in both languages
     st.write("""
-    ### 
+    ### Welcome | Bun venit
+    
+    Welcome to the Management Style and Adequacy Assessment tool. This assessment will help you understand your management style and its effectiveness across four key dimensions.
+    
     Bine ați venit la instrumentul de Evaluare a Stilului și Adecvării Managementului. Această evaluare vă va ajuta să înțelegeți stilul dvs. de management și eficacitatea acestuia în patru dimensiuni cheie.
     """)
 
     # Management Styles Description
     st.markdown("""
-    ### Stiluri de Management
+    ### Management Styles | Stiluri de Management
     
     #### 1. Directive Style (Stil Directiv)
     - **English**: A task-oriented approach focusing on clear instructions, direct supervision, and structured control. Best suited for new team members or crisis situations.
