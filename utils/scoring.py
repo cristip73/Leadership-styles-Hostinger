@@ -27,45 +27,6 @@ class AssessmentScorer:
             "d": 2
         }
 
-        self.adequacy_tiers = [
-            {
-                'max': 20,
-                'min': 10,
-                'level': 'Excelent',
-                'description': '''
-Adaptabilitate foarte bună la context, demonstrată prin:
-- Capacitate excelentă de a adapta stilul de conducere
-- Înțelegere profundă a nevoilor echipei
-- Flexibilitate maximă în abordarea situațiilor
-- Eficacitate ridicată în diverse contexte
-- Abilități superioare de leadership situațional'''
-            },
-            {
-                'min': 0,
-                'max': 10,
-                'level': 'Bun',
-                'description': '''
-Adaptabilitate moderată, cu potențial de dezvoltare, caracterizată prin:
-- Capacitate bună de adaptare în situații familiare
-- Înțelegere de bază a nevoilor echipei
-- Flexibilitate moderată în abordări
-- Eficacitate variabilă în funcție de context
-- Potențial de îmbunătățire a abilităților de leadership'''
-            },
-            {
-                'min': -9,
-                'max': -1,
-                'level': 'Necesită dezvoltare',
-                'description': '''
-Adaptabilitate redusă, necesită îmbunătățire semnificativă, manifestată prin:
-- Dificultăți în adaptarea stilului de conducere
-- Înțelegere limitată a nevoilor echipei
-- Rigiditate în abordarea situațiilor
-- Eficacitate scăzută în contexte variate
-- Necesitatea dezvoltării abilităților de leadership situațional'''
-            }
-        ]
-
         self.style_names = {
             "1": "Directiv",
             "2": "Persuasiv",
@@ -123,12 +84,13 @@ Adaptabilitate redusă, necesită îmbunătățire semnificativă, manifestată 
                     total_score += self.adequacy_coefficients[category]
                     break
         
-        # Determine adequacy level based on score using tiers
-        level = None
-        for tier in self.adequacy_tiers:
-            if tier['min'] <= total_score and (tier['max'] is None or total_score <= tier['max']):
-                level = tier['level']
-                break
+        # Determine adequacy level based on score
+        if total_score >= 20:
+            level = "Excelent"
+        elif total_score >= 10:
+            level = "Bun"
+        else:
+            level = "Necesită dezvoltare"
             
         return int(total_score), level
 
@@ -170,8 +132,30 @@ Stil orientat spre autonomie și împuternicire, caracterizat prin:
         return style_descriptions.get(style_name, "")
 
     def get_adequacy_description(self, score: int) -> str:
-        # Find the matching tier and return its description
-        for tier in self.adequacy_tiers:
-            if tier['min'] <= score and (tier['max'] is None or score <= tier['max']):
-                return tier['description']
-        return ""
+        if score >= 20:
+            return """
+Adaptabilitate foarte bună la context, demonstrată prin:
+- Capacitate excelentă de a adapta stilul de conducere
+- Înțelegere profundă a nevoilor echipei
+- Flexibilitate maximă în abordarea situațiilor
+- Eficacitate ridicată în diverse contexte
+- Abilități superioare de leadership situațional
+            """
+        elif score >= 10:
+            return """
+Adaptabilitate moderată, cu potențial de dezvoltare, caracterizată prin:
+- Capacitate bună de adaptare în situații familiare
+- Înțelegere de bază a nevoilor echipei
+- Flexibilitate moderată în abordări
+- Eficacitate variabilă în funcție de context
+- Potențial de îmbunătățire a abilităților de leadership
+            """
+        else:
+            return """
+Adaptabilitate redusă, necesită îmbunătățire semnificativă, manifestată prin:
+- Dificultăți în adaptarea stilului de conducere
+- Înțelegere limitată a nevoilor echipei
+- Rigiditate în abordarea situațiilor
+- Eficacitate scăzută în contexte variate
+- Necesitatea dezvoltării abilităților de leadership situațional
+            """
