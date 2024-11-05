@@ -25,7 +25,13 @@ def check_supervisor_password():
 
 def load_results_data():
     results = st.session_state.db.get_all_results()
-    return pd.DataFrame(results)
+    df = pd.DataFrame(results)
+    # Convert style scores to integers
+    score_columns = ['directiv_score', 'persuasiv_score', 'participativ_score', 'delegativ_score']
+    for col in score_columns:
+        if col in df.columns:
+            df[col] = df[col].astype(int)
+    return df
 
 def export_to_excel(df):
     output = io.BytesIO()
@@ -160,35 +166,38 @@ def display_comparative_analysis(df):
         selected_data = df[df.apply(lambda x: f"{x['first_name']} {x['last_name']} ({x['email']})" in selected_users, axis=1)]
         
         # Create comparison table
-        scorer = AssessmentScorer()
         comparison_data = []
         
         for _, user in selected_data.iterrows():
-            responses = st.session_state.db.get_user_responses(user['id'])
-            style_scores = scorer.get_all_style_scores(responses)
-            
             comparison_data.append({
                 'Name': f"{user['first_name']} {user['last_name']}",
-                'Directiv': style_scores['Directiv'],
-                'Persuasiv': style_scores['Persuasiv'],
-                'Participativ': style_scores['Participativ'],
-                'Delegativ': style_scores['Delegativ'],
+                'Directiv': int(user['directiv_score']),
+                'Persuasiv': int(user['persuasiv_score']),
+                'Participativ': int(user['participativ_score']),
+                'Delegativ': int(user['delegativ_score']),
                 'Adequacy Score': int(user['adequacy_score']),
                 'Adequacy Level': user['adequacy_level']
             })
         
-        # Display the comparison table
+        # Display the comparison table with integer formatting
         st.write("#### Management Style Scores")
         comparison_df = pd.DataFrame(comparison_data)
         
-        # Format the table to show integer values
-        st.dataframe(comparison_df.style.format({
-            'Directiv': '{:d}',
-            'Persuasiv': '{:d}',
-            'Participativ': '{:d}',
-            'Delegativ': '{:d}',
-            'Adequacy Score': '{:d}'
-        }))
+        # Format all numeric columns as integers
+        numeric_cols = ['Directiv', 'Persuasiv', 'Participativ', 'Delegativ', 'Adequacy Score']
+        for col in numeric_cols:
+            comparison_df[col] = comparison_df[col].astype(int)
+        
+        # Display the table with custom formatting
+        st.dataframe(
+            comparison_df,
+            column_config={
+                col: st.column_config.NumberColumn(
+                    col,
+                    format="%d"
+                ) for col in numeric_cols
+            }
+        )
         
         # Display adequacy score comparison
         st.write("#### Adequacy Score Comparison")
