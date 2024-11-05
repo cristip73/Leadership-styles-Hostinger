@@ -84,13 +84,15 @@ class AssessmentScorer:
                     total_score += self.adequacy_coefficients[category]
                     break
         
-        # Determine adequacy level based on score
-        if total_score >= 20:
+        # Updated adequacy level ranges
+        if total_score >= 20 and total_score <= 24:
             level = "Excelent"
-        elif total_score >= 10:
+        elif total_score >= 10 and total_score <= 19:
             level = "Bun"
-        else:
+        elif total_score >= -24 and total_score <= 9:
             level = "Necesită dezvoltare"
+        else:
+            level = "Necesită dezvoltare"  # Default case for any unexpected scores
             
         return int(total_score), level
 
@@ -132,7 +134,7 @@ Stil orientat spre autonomie și împuternicire, caracterizat prin:
         return style_descriptions.get(style_name, "")
 
     def get_adequacy_description(self, score: int) -> str:
-        if score >= 20:
+        if score >= 20 and score <= 24:
             return """
 Adaptabilitate foarte bună la context, demonstrată prin:
 - Capacitate excelentă de a adapta stilul de conducere
@@ -141,7 +143,7 @@ Adaptabilitate foarte bună la context, demonstrată prin:
 - Eficacitate ridicată în diverse contexte
 - Abilități superioare de leadership situațional
             """
-        elif score >= 10:
+        elif score >= 10 and score <= 19:
             return """
 Adaptabilitate moderată, cu potențial de dezvoltare, caracterizată prin:
 - Capacitate bună de adaptare în situații familiare
