@@ -96,17 +96,66 @@ class AssessmentScorer:
 
     def get_style_description(self, style_name: str) -> str:
         style_descriptions = {
-            "Directiv": "Stil orientat spre sarcini și control direct",
-            "Persuasiv": "Stil orientat spre convingere și explicații",
-            "Participativ": "Stil orientat spre colaborare și decizie comună",
-            "Delegativ": "Stil orientat spre autonomie și delegare"
+            "Directiv": """
+Stil orientat spre control și structură, caracterizat prin:
+- Stabilirea clară a obiectivelor și procedurilor
+- Monitorizarea îndeaproape a performanței
+- Luarea deciziilor în mod centralizat
+- Accent pe disciplină și ordine
+- Comunicare directă și precisă
+            """,
+            "Persuasiv": """
+Stil orientat spre convingere și motivare, caracterizat prin:
+- Explicarea detaliată a deciziilor
+- Încurajarea feedback-ului și discuțiilor
+- Inspirarea și motivarea echipei
+- Accent pe dezvoltarea relațiilor
+- Comunicare convingătoare și entuziastă
+            """,
+            "Participativ": """
+Stil orientat spre colaborare și implicare, caracterizat prin:
+- Luarea deciziilor în mod democratic
+- Încurajarea participării active
+- Facilitarea comunicării deschise
+- Accent pe dezvoltarea echipei
+- Valorizarea contribuțiilor individuale
+            """,
+            "Delegativ": """
+Stil orientat spre autonomie și împuternicire, caracterizat prin:
+- Delegarea responsabilităților și autorității
+- Încredere în capacitățile echipei
+- Susținerea inițiativelor individuale
+- Accent pe dezvoltarea profesională
+- Monitorizare minimă și suport la cerere
+            """
         }
         return style_descriptions.get(style_name, "")
 
     def get_adequacy_description(self, score: int) -> str:
         if score >= 20:
-            return "Adaptabilitate foarte bună la context"
+            return """
+Adaptabilitate foarte bună la context, demonstrată prin:
+- Capacitate excelentă de a adapta stilul de conducere
+- Înțelegere profundă a nevoilor echipei
+- Flexibilitate maximă în abordarea situațiilor
+- Eficacitate ridicată în diverse contexte
+- Abilități superioare de leadership situațional
+            """
         elif score >= 10:
-            return "Adaptabilitate moderată, cu potențial de dezvoltare"
+            return """
+Adaptabilitate moderată, cu potențial de dezvoltare, caracterizată prin:
+- Capacitate bună de adaptare în situații familiare
+- Înțelegere de bază a nevoilor echipei
+- Flexibilitate moderată în abordări
+- Eficacitate variabilă în funcție de context
+- Potențial de îmbunătățire a abilităților de leadership
+            """
         else:
-            return "Adaptabilitate redusă, necesită îmbunătățire semnificativă"
+            return """
+Adaptabilitate redusă, necesită îmbunătățire semnificativă, manifestată prin:
+- Dificultăți în adaptarea stilului de conducere
+- Înțelegere limitată a nevoilor echipei
+- Rigiditate în abordarea situațiilor
+- Eficacitate scăzută în contexte variate
+- Necesitatea dezvoltării abilităților de leadership situațional
+            """
