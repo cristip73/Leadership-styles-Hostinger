@@ -29,8 +29,8 @@ class AssessmentScorer:
 
         self.adequacy_tiers = [
             {
-                'min': 20,
-                'max': 24,
+                'max': 20,
+                'min': 10,
                 'level': 'Excelent',
                 'description': '''
 Adaptabilitate foarte bună la context, demonstrată prin:
@@ -41,8 +41,8 @@ Adaptabilitate foarte bună la context, demonstrată prin:
 - Abilități superioare de leadership situațional'''
             },
             {
-                'min': 10,
-                'max': 19,
+                'min': 0,
+                'max': 10,
                 'level': 'Bun',
                 'description': '''
 Adaptabilitate moderată, cu potențial de dezvoltare, caracterizată prin:
@@ -53,8 +53,8 @@ Adaptabilitate moderată, cu potențial de dezvoltare, caracterizată prin:
 - Potențial de îmbunătățire a abilităților de leadership'''
             },
             {
-                'min': -24,
-                'max': 9,
+                'min': -9,
+                'max': -1,
                 'level': 'Necesită dezvoltare',
                 'description': '''
 Adaptabilitate redusă, necesită îmbunătățire semnificativă, manifestată prin:
