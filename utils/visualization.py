@@ -33,13 +33,12 @@ def create_adequacy_gauge(score: int):
         value = score,
         domain = {'x': [0, 1], 'y': [0, 1]},
         gauge = {
-            'axis': {'range': [-24, 24], 'dtick': 4},  # Updated range with integer steps
+            'axis': {'range': [-24, 24]},
             'steps': [
                 {'range': [-24, 9], 'color': "lightgray"},
                 {'range': [10, 19], 'color': "lightblue"},
                 {'range': [20, 24], 'color': "blue"}
             ],
-            'bar': {'color': "darkblue"},
             'threshold': {
                 'line': {'color': "red", 'width': 4},
                 'thickness': 0.75,
@@ -47,11 +46,6 @@ def create_adequacy_gauge(score: int):
             }
         }
     ))
-    
-    # Add level annotations
-    fig.add_annotation(x=0.1, y=0.2, text="Necesită dezvoltare (-24 to 9)", showarrow=False)
-    fig.add_annotation(x=0.5, y=0.2, text="Bun (10 to 19)", showarrow=False)
-    fig.add_annotation(x=0.9, y=0.2, text="Excelent (20 to 24)", showarrow=False)
     
     return fig
 
@@ -70,13 +64,7 @@ def create_statistics_charts(results_df: pd.DataFrame):
     adequacy_hist.update_layout(
         title_text='Distribution of Adequacy Scores',
         xaxis_title_text='Score',
-        yaxis_title_text='Count',
-        xaxis=dict(
-            tickmode='linear',
-            tick0=-24,
-            dtick=4,
-            range=[-24, 24]
-        )
+        yaxis_title_text='Count'
     )
     
     return style_pie, adequacy_hist
