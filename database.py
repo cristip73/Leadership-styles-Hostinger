@@ -77,25 +77,6 @@ class Database:
             )
         ''')
         
-        # TEST: Migration test table - proves we can add tables without data loss
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS migration_test (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                test_name TEXT NOT NULL,
-                test_value TEXT,
-                deployed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        # Insert a test record only if table is empty (first deployment)
-        cursor.execute("SELECT COUNT(*) FROM migration_test")
-        if cursor.fetchone()[0] == 0:
-            cursor.execute(
-                "INSERT INTO migration_test (test_name, test_value) VALUES (?, ?)",
-                ("production_test", f"Table added at {datetime.now().isoformat()}")
-            )
-            print("Test migration table created and seeded")
-        
         conn.commit()
         conn.close()
     
