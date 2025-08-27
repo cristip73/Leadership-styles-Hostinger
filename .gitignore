@@ -46,3 +46,6 @@ coverage.xml
 dist/
 build/
 *.egg-info/
+
+# GPT5 generated docs
+gpt5_docs/

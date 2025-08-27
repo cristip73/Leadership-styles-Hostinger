@@ -5,11 +5,16 @@ from datetime import datetime
 import os
 
 class Database:
-    def __init__(self, db_path='instance/assessment.db'):
+    def __init__(self, db_path=None):
+        # Use DATABASE_PATH from environment, fallback to local instance folder
+        if db_path is None:
+            db_path = os.environ.get('DATABASE_PATH', 'instance/assessment.db')
         self.db_path = db_path
         
-        # Create instance directory if it doesn't exist
-        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+        # Create directory if it doesn't exist
+        db_dir = os.path.dirname(db_path)
+        if db_dir:  # Only create if there's a directory part
+            os.makedirs(db_dir, exist_ok=True)
         
         self.init_db()
     
