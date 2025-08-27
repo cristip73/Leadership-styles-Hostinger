@@ -77,8 +77,79 @@ class Database:
             )
         ''')
         
+        # Migration: Handle persuasiv_score -> informativ_score transition
+        self._migrate_persuasiv_to_informativ(cursor)
+        
         conn.commit()
         conn.close()
+    
+    def _migrate_persuasiv_to_informativ(self, cursor):
+        """Migrate from persuasiv_score to informativ_score column and update style names"""
+        try:
+            # Check if results table exists first
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='results'")
+            if not cursor.fetchone():
+                print("✅ New database - no migration needed")
+                return
+            
+            # Check current column structure
+            cursor.execute("PRAGMA table_info(results)")
+            columns = [row[1] for row in cursor.fetchall()]
+            
+            has_informativ = 'informativ_score' in columns
+            has_persuasiv = 'persuasiv_score' in columns
+            
+            if not has_informativ and has_persuasiv:
+                # Migration needed: persuasiv_score -> informativ_score
+                print("🔄 Running database migration: persuasiv_score -> informativ_score")
+                
+                # Add new column
+                cursor.execute("ALTER TABLE results ADD COLUMN informativ_score INTEGER")
+                
+                # Copy data from old column
+                cursor.execute("UPDATE results SET informativ_score = persuasiv_score")
+                
+                # Update style names in existing data
+                cursor.execute("""UPDATE results SET 
+                    primary_style = REPLACE(primary_style, 'Persuasiv', 'Informativ'),
+                    secondary_style = REPLACE(secondary_style, 'Persuasiv', 'Informativ')""")
+                
+                print("✅ Migration completed successfully")
+                
+            elif has_informativ and has_persuasiv:
+                # Both columns exist - check if data needs to be migrated
+                cursor.execute("SELECT COUNT(*) FROM results WHERE informativ_score IS NULL AND persuasiv_score IS NOT NULL")
+                unmigrated_count = cursor.fetchone()[0]
+                
+                if unmigrated_count > 0:
+                    print(f"🔄 Completing data migration for {unmigrated_count} records")
+                    cursor.execute("UPDATE results SET informativ_score = persuasiv_score WHERE informativ_score IS NULL")
+                    cursor.execute("""UPDATE results SET 
+                        primary_style = REPLACE(primary_style, 'Persuasiv', 'Informativ'),
+                        secondary_style = REPLACE(secondary_style, 'Persuasiv', 'Informativ')
+                        WHERE primary_style LIKE '%Persuasiv%' OR secondary_style LIKE '%Persuasiv%'""")
+                    print("✅ Data migration completed")
+                    
+            elif has_informativ and not has_persuasiv:
+                # Already fully migrated - check if style names need updating
+                cursor.execute("SELECT COUNT(*) FROM results WHERE primary_style LIKE '%Persuasiv%' OR secondary_style LIKE '%Persuasiv%'")
+                old_style_count = cursor.fetchone()[0]
+                
+                if old_style_count > 0:
+                    print(f"🔄 Updating style names for {old_style_count} records")
+                    cursor.execute("""UPDATE results SET 
+                        primary_style = REPLACE(primary_style, 'Persuasiv', 'Informativ'),
+                        secondary_style = REPLACE(secondary_style, 'Persuasiv', 'Informativ')""")
+                    print("✅ Style names updated")
+                else:
+                    print("✅ Database already fully migrated")
+                    
+            else:
+                print("✅ New database - no migration needed")
+                
+        except Exception as e:
+            print(f"❌ Migration error: {e}")
+            raise
     
     def validate_email(self, email: str) -> bool:
         """Validate email format using regex"""
