@@ -15,6 +15,12 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
+# Session configuration
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['PERMANENT_SESSION_LIFETIME'] = 3600  # 1 hour
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+
 # Initialize database
 db = Database()
 
@@ -44,9 +50,17 @@ def register():
         
         # Create user
         user_id = db.create_user(first_name, last_name, email)
+        
+        # Clear and reinitialize session
+        session.clear()
         session['user_id'] = str(user_id)
         session['responses'] = {}
         session['current_question'] = 1
+        session.permanent = True  # Make session permanent
+        session.modified = True  # Force session to save
+        
+        print(f"DEBUG: User registered: {user_id}")
+        print(f"DEBUG: Session initialized with user_id: {session.get('user_id')}")
         
         return jsonify({'success': True, 'user_id': str(user_id)})
     except ValueError as e:
@@ -58,38 +72,58 @@ def register():
 def submit_answer():
     """Submit answer for current question"""
     try:
+        print(f"DEBUG: Session at start - User: {session.get('user_id')}, Responses: {session.get('responses', {})}")
+        
         if 'user_id' not in session:
+            print("DEBUG: No user_id in session!")
             return jsonify({'success': False, 'error': 'Not registered'}), 401
         
         data = request.json
         question_id = data.get('question_id')
         answer = data.get('answer', '').upper()
         
+        print(f"DEBUG: Received Q{question_id}: {answer}")
+        
         if not answer or answer not in ['A', 'B', 'C', 'D']:
             return jsonify({'success': False, 'error': 'Invalid answer'}), 400
         
         # Save response to session
         if 'responses' not in session:
+            print("DEBUG: Creating new responses dict in session")
             session['responses'] = {}
         session['responses'][str(question_id)] = answer
+        
+        # Force session to save
+        session.modified = True
+        
+        print(f"DEBUG: Session responses count: {len(session['responses'])}")
+        print(f"DEBUG: Session contains: {list(session['responses'].keys())}")
+        print(f"DEBUG: Total questions: {len(QUESTIONS)}")
         
         # Save to database
         db.save_response(session['user_id'], question_id, answer)
         
         # Check if all questions answered
         if len(session['responses']) >= len(QUESTIONS):
+            print("DEBUG: All questions answered, calculating results...")
             # Calculate results
             scorer = AssessmentScorer()
             responses_dict = {int(k): v for k, v in session['responses'].items()}
             
+            print(f"DEBUG: Responses dict: {responses_dict}")
+            
             # Get style scores
             primary_style, secondary_style = scorer.calculate_style_scores(responses_dict)
-            adequacy_score = scorer.calculate_adequacy_score(responses_dict)
-            adequacy_tier = scorer.get_adequacy_tier(adequacy_score)
+            adequacy_score, adequacy_tier = scorer.calculate_adequacy_score(responses_dict)
+            
+            print(f"DEBUG: Primary: {primary_style}, Secondary: {secondary_style}")
+            print(f"DEBUG: Adequacy: {adequacy_score}, Level: {adequacy_tier}")
             
             # Get all style scores
             style_scores = scorer.get_all_style_scores([{'question_id': k, 'answer': v} 
                                                         for k, v in responses_dict.items()])
+            
+            print(f"DEBUG: Style scores: {style_scores}")
             
             # Save results
             db.save_results(
@@ -101,6 +135,8 @@ def submit_answer():
                 style_scores
             )
             
+            print(f"DEBUG: Results saved! User ID: {session['user_id']}")
+            
             return jsonify({
                 'success': True,
                 'completed': True,
@@ -109,6 +145,9 @@ def submit_answer():
         
         return jsonify({'success': True, 'completed': False})
     except Exception as e:
+        print(f"ERROR: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/results/<user_id>')
@@ -159,6 +198,42 @@ def supervisor_login():
         return jsonify({'success': False, 'error': 'Invalid password'}), 401
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/compare', methods=['POST'])
+def compare_profiles():
+    """Compare multiple user profiles"""
+    if not session.get('supervisor_authenticated'):
+        return jsonify({'error': 'Not authorized'}), 401
+    
+    try:
+        data = request.json
+        user_ids = data.get('user_ids', [])
+        
+        if len(user_ids) < 2 or len(user_ids) > 4:
+            return jsonify({'error': 'Please select 2-4 participants'}), 400
+        
+        comparison_data = []
+        for user_id in user_ids:
+            result = db.get_user_results(user_id)
+            if result:
+                comparison_data.append({
+                    'id': result['user_id'],
+                    'name': f"{result['first_name']} {result['last_name']}",
+                    'email': result['email'],
+                    'primary_style': result['primary_style'],
+                    'secondary_style': result['secondary_style'],
+                    'directiv_score': result['directiv_score'] or 0,
+                    'persuasiv_score': result['persuasiv_score'] or 0,
+                    'participativ_score': result['participativ_score'] or 0,
+                    'delegativ_score': result['delegativ_score'] or 0,
+                    'adequacy_score': result['adequacy_score'] or 0,
+                    'adequacy_level': result['adequacy_level']
+                })
+        
+        return jsonify({'success': True, 'data': comparison_data})
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/export/<format>')
 def export_data(format):
@@ -226,5 +301,5 @@ def server_error(e):
     return render_template('500.html'), 500
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
+    port = int(os.environ.get('PORT', 5001))
     app.run(debug=True, host='0.0.0.0', port=port)

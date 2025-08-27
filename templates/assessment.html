@@ -182,17 +182,26 @@ document.querySelectorAll('.btn-prev').forEach(btn => {
 
 document.querySelectorAll('.btn-next').forEach(btn => {
     btn.addEventListener('click', async function() {
+        // Prevent double-click
+        if (this.disabled) return;
+        this.disabled = true;
+        
         const questionSlide = this.closest('.question-slide');
         const questionId = parseInt(questionSlide.dataset.question);
         const selectedOption = questionSlide.querySelector('input[type="radio"]:checked');
         
         if (!selectedOption) {
             alert('Vă rugăm să selectați un răspuns');
+            this.disabled = false;
             return;
         }
         
         // Save response
         responses[questionId] = selectedOption.value;
+        
+        // Debug log
+        console.log(`Question ${questionId}: ${selectedOption.value}`);
+        console.log(`Total responses so far: ${Object.keys(responses).length}`);
         
         // Submit answer to server
         try {
@@ -208,9 +217,11 @@ document.querySelectorAll('.btn-next').forEach(btn => {
             });
             
             const data = await response.json();
+            console.log('Server response:', data);
             
             if (data.success) {
                 if (data.completed) {
+                    console.log('Assessment completed! Redirecting to results...');
                     // Assessment completed
                     document.getElementById('assessmentSection').style.display = 'none';
                     document.getElementById('loadingSection').style.display = 'block';
@@ -224,12 +235,18 @@ document.querySelectorAll('.btn-next').forEach(btn => {
                     if (currentQuestion < totalQuestions - 1) {
                         showQuestion(currentQuestion + 1);
                     }
+                    // Re-enable button for next question navigation
+                    this.disabled = false;
                 }
             } else {
+                console.error('Server error:', data);
                 alert(data.error || 'Eroare la salvarea răspunsului');
+                this.disabled = false;
             }
         } catch (error) {
-            alert('Eroare de conexiune');
+            console.error('Fetch error:', error);
+            alert('Eroare de conexiune: ' + error.message);
+            this.disabled = false;
         }
     });
 });

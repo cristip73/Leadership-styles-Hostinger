@@ -2,111 +2,220 @@
 
 {% block title %}Dashboard Supervizor - Evaluare Stil de Management{% endblock %}
 
+{% block extra_css %}
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
+<style>
+    .comparison-card {
+        min-height: 400px;
+    }
+    .user-select-item {
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .user-select-item:hover {
+        background-color: #f8f9fa;
+    }
+    .selected-user {
+        background-color: #e3f2fd !important;
+        border-left: 4px solid #0066cc;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <div class="card shadow">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2>Dashboard Supervizor</h2>
-                    <div>
-                        <a href="{{ url_for('export_data', format='excel') }}" class="btn btn-success me-2">
-                            📊 Export Excel
-                        </a>
-                        <a href="{{ url_for('export_data', format='csv') }}" class="btn btn-info me-2">
-                            📄 Export CSV
-                        </a>
-                        <a href="{{ url_for('logout') }}" class="btn btn-danger">
-                            Deconectare
-                        </a>
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Dashboard Supervizor</h2>
+        <div>
+            <a href="{{ url_for('export_data', format='excel') }}" class="btn btn-success btn-sm me-2">
+                📊 Export Excel
+            </a>
+            <a href="{{ url_for('export_data', format='csv') }}" class="btn btn-info btn-sm me-2">
+                📄 Export CSV
+            </a>
+            <a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm">
+                Deconectare
+            </a>
+        </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Evaluări</h5>
+                    <h2 class="display-4">{{ results|length }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Adecvare Excelentă</h5>
+                    <h2 class="display-4">{{ results|selectattr("adequacy_score", ">=", 20)|list|length }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Adecvare Bună</h5>
+                    <h2 class="display-4">{{ results|selectattr("adequacy_score", ">=", 10)|selectattr("adequacy_score", "<", 20)|list|length }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Necesită Dezvoltare</h5>
+                    <h2 class="display-4">{{ results|selectattr("adequacy_score", "<", 10)|list|length }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4" id="supervisorTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button">
+                📊 Prezentare Generală
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="comparison-tab" data-bs-toggle="tab" data-bs-target="#comparison" type="button">
+                🔍 Comparare Profile
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" type="button">
+                📋 Detalii Individuale
+            </button>
+        </li>
+    </ul>
+    
+    <!-- Tab Content -->
+    <div class="tab-content" id="supervisorTabContent">
+        <!-- Overview Tab -->
+        <div class="tab-pane fade show active" id="overview" role="tabpanel">
+            <div class="card">
+                <div class="card-body">
+                    <h4>Tabel Rezultate</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="resultsTable">
+                            <thead>
+                                <tr>
+                                    <th>Nume</th>
+                                    <th>Email</th>
+                                    <th>Stil Principal</th>
+                                    <th>Stil Secundar</th>
+                                    <th>Scor Adecvare</th>
+                                    <th>Nivel</th>
+                                    <th>Data</th>
+                                    <th>Acțiuni</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for result in results %}
+                                <tr>
+                                    <td>{{ result.first_name }} {{ result.last_name }}</td>
+                                    <td>{{ result.email }}</td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ result.primary_style }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ result.secondary_style }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge {% if result.adequacy_score >= 20 %}bg-success{% elif result.adequacy_score >= 10 %}bg-warning{% else %}bg-danger{% endif %}">
+                                            {{ result.adequacy_score }}
+                                        </span>
+                                    </td>
+                                    <td>{{ result.adequacy_level }}</td>
+                                    <td>{{ result.created_at[:10] }}</td>
+                                    <td>
+                                        <a href="{{ url_for('results', user_id=result.user_id) }}" class="btn btn-sm btn-outline-primary">
+                                            Vezi
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    {% if not results %}
+                    <div class="alert alert-info text-center mt-4">
+                        Nu există rezultate încă. Rezultatele vor apărea aici după ce participanții completează evaluarea.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Comparison Tab -->
+        <div class="tab-pane fade" id="comparison" role="tabpanel">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Selectați Participanți (2-4)</h5>
+                            <div class="alert alert-info">
+                                Selectați între 2 și 4 participanți pentru comparare.
+                            </div>
+                            <div class="list-group" id="userSelectList">
+                                {% for result in results %}
+                                <div class="list-group-item user-select-item" data-user-id="{{ result.user_id }}">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>{{ result.first_name }} {{ result.last_name }}</strong><br>
+                                            <small>{{ result.primary_style }} | Score: {{ result.adequacy_score }}</small>
+                                        </div>
+                                        <input type="checkbox" class="form-check-input user-checkbox">
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <button class="btn btn-primary w-100 mt-3" id="compareBtn" disabled>
+                                Compară Profile
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Statistics Cards -->
-                <div class="row mb-4">
-                    <div class="col-md-3">
-                        <div class="card bg-primary text-white">
-                            <div class="card-body">
-                                <h5 class="card-title">Total Evaluări</h5>
-                                <h2 class="display-4">{{ results|length }}</h2>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card bg-success text-white">
-                            <div class="card-body">
-                                <h5 class="card-title">Adecvare Înaltă</h5>
-                                <h2 class="display-4">{{ results|selectattr("adequacy_score", ">=", 15)|list|length }}</h2>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card bg-warning text-white">
-                            <div class="card-body">
-                                <h5 class="card-title">Adecvare Medie</h5>
-                                <h2 class="display-4">{{ results|selectattr("adequacy_score", ">=", 6)|selectattr("adequacy_score", "<", 15)|list|length }}</h2>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card bg-danger text-white">
-                            <div class="card-body">
-                                <h5 class="card-title">Adecvare Scăzută</h5>
-                                <h2 class="display-4">{{ results|selectattr("adequacy_score", "<", 6)|list|length }}</h2>
+                <div class="col-md-8">
+                    <div class="card comparison-card">
+                        <div class="card-body">
+                            <h5 class="card-title">Rezultate Comparație</h5>
+                            <div id="comparisonResults">
+                                <div class="text-center text-muted py-5">
+                                    <i class="bi bi-arrow-left"></i> Selectați participanți pentru a începe comparația
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Results Table -->
-                <div class="table-responsive">
-                    <table class="table table-hover" id="resultsTable">
-                        <thead>
-                            <tr>
-                                <th>Nume</th>
-                                <th>Email</th>
-                                <th>Stil Principal</th>
-                                <th>Stil Secundar</th>
-                                <th>Scor Adecvare</th>
-                                <th>Nivel</th>
-                                <th>Data</th>
-                                <th>Acțiuni</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for result in results %}
-                            <tr>
-                                <td>{{ result.first_name }} {{ result.last_name }}</td>
-                                <td>{{ result.email }}</td>
-                                <td>
-                                    <span class="badge bg-primary">{{ result.primary_style }}</span>
-                                </td>
-                                <td>
-                                    <span class="badge bg-secondary">{{ result.secondary_style }}</span>
-                                </td>
-                                <td>
-                                    <span class="badge {% if result.adequacy_score >= 15 %}bg-success{% elif result.adequacy_score >= 6 %}bg-warning{% else %}bg-danger{% endif %}">
-                                        {{ result.adequacy_score }}
-                                    </span>
-                                </td>
-                                <td>{{ result.adequacy_level }}</td>
-                                <td>{{ result.created_at[:10] }}</td>
-                                <td>
-                                    <a href="{{ url_for('results', user_id=result.user_id) }}" class="btn btn-sm btn-outline-primary">
-                                        Vezi Detalii
-                                    </a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+            </div>
+        </div>
+        
+        <!-- Details Tab -->
+        <div class="tab-pane fade" id="details" role="tabpanel">
+            <div class="card">
+                <div class="card-body">
+                    <h4>Selectați un participant pentru detalii</h4>
+                    <select class="form-select mb-3" id="userDetailSelect">
+                        <option value="">-- Selectați --</option>
+                        {% for result in results %}
+                        <option value="{{ result.user_id }}">
+                            {{ result.first_name }} {{ result.last_name }} ({{ result.email }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                    
+                    <div id="userDetailsContent">
+                        <!-- Details will be loaded here -->
+                    </div>
                 </div>
-                
-                {% if not results %}
-                <div class="alert alert-info text-center mt-4">
-                    Nu există rezultate încă. Rezultatele vor apărea aici după ce participanții completează evaluarea.
-                </div>
-                {% endif %}
             </div>
         </div>
     </div>
@@ -120,12 +229,180 @@
 
 <script>
 $(document).ready(function() {
+    // Initialize DataTable
     $('#resultsTable').DataTable({
         "language": {
             "url": "//cdn.datatables.net/plug-ins/1.11.5/i18n/ro.json"
         },
         "order": [[ 6, "desc" ]],
         "pageLength": 25
+    });
+    
+    // Profile comparison
+    let selectedUsers = [];
+    
+    $('.user-select-item').on('click', function(e) {
+        if (e.target.type === 'checkbox') return;
+        
+        const checkbox = $(this).find('.user-checkbox');
+        checkbox.prop('checked', !checkbox.prop('checked'));
+        checkbox.trigger('change');
+    });
+    
+    $('.user-checkbox').on('change', function() {
+        const userItem = $(this).closest('.user-select-item');
+        const userId = userItem.data('user-id');
+        
+        if ($(this).is(':checked')) {
+            if (selectedUsers.length < 4) {
+                selectedUsers.push(userId);
+                userItem.addClass('selected-user');
+            } else {
+                $(this).prop('checked', false);
+                alert('Puteți selecta maximum 4 participanți');
+            }
+        } else {
+            selectedUsers = selectedUsers.filter(id => id !== userId);
+            userItem.removeClass('selected-user');
+        }
+        
+        $('#compareBtn').prop('disabled', selectedUsers.length < 2);
+    });
+    
+    $('#compareBtn').on('click', async function() {
+        if (selectedUsers.length < 2) return;
+        
+        try {
+            const response = await fetch('/api/compare', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ user_ids: selectedUsers })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                displayComparison(result.data);
+            } else {
+                alert(result.error || 'Eroare la comparare');
+            }
+        } catch (error) {
+            alert('Eroare de conexiune');
+        }
+    });
+    
+    function displayComparison(data) {
+        let html = '<div class="table-responsive mb-4">';
+        html += '<table class="table table-bordered">';
+        html += '<thead><tr><th>Nume</th><th>Stil Principal</th><th>Directiv</th><th>Persuasiv</th><th>Participativ</th><th>Delegativ</th><th>Scor Adecvare</th></tr></thead>';
+        html += '<tbody>';
+        
+        data.forEach(user => {
+            html += `<tr>
+                <td>${user.name}</td>
+                <td><span class="badge bg-primary">${user.primary_style}</span></td>
+                <td>${user.directiv_score}</td>
+                <td>${user.persuasiv_score}</td>
+                <td>${user.participativ_score}</td>
+                <td>${user.delegativ_score}</td>
+                <td><span class="badge ${user.adequacy_score >= 20 ? 'bg-success' : user.adequacy_score >= 10 ? 'bg-warning' : 'bg-danger'}">${user.adequacy_score}</span></td>
+            </tr>`;
+        });
+        
+        html += '</tbody></table></div>';
+        
+        // Create comparison chart
+        const traces = data.map(user => ({
+            x: ['Directiv', 'Persuasiv', 'Participativ', 'Delegativ'],
+            y: [user.directiv_score, user.persuasiv_score, user.participativ_score, user.delegativ_score],
+            name: user.name,
+            type: 'bar'
+        }));
+        
+        html += '<div id="comparisonChart"></div>';
+        
+        $('#comparisonResults').html(html);
+        
+        Plotly.newPlot('comparisonChart', traces, {
+            title: 'Comparație Stiluri de Management',
+            barmode: 'group',
+            yaxis: { title: 'Scor' },
+            height: 400
+        });
+    }
+    
+    // User details
+    $('#userDetailSelect').on('change', function() {
+        const userId = $(this).val();
+        if (!userId) {
+            $('#userDetailsContent').html('');
+            return;
+        }
+        
+        // Find user in results data
+        const userData = {{ results|tojson }}.find(r => r.user_id === userId);
+        
+        if (userData) {
+            let html = `
+                <div class="card">
+                    <div class="card-body">
+                        <h5>${userData.first_name} ${userData.last_name}</h5>
+                        <p><strong>Email:</strong> ${userData.email}</p>
+                        <p><strong>Data Evaluării:</strong> ${userData.created_at}</p>
+                        
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <h6>Stiluri de Management</h6>
+                                <p><strong>Stil Principal:</strong> ${userData.primary_style}</p>
+                                <p><strong>Stil Secundar:</strong> ${userData.secondary_style}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Scoruri Detaliate</h6>
+                                <p>Directiv: ${userData.directiv_score || 0}</p>
+                                <p>Persuasiv: ${userData.persuasiv_score || 0}</p>
+                                <p>Participativ: ${userData.participativ_score || 0}</p>
+                                <p>Delegativ: ${userData.delegativ_score || 0}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <h6>Scor Adecvare</h6>
+                            <div class="progress" style="height: 30px;">
+                                <div class="progress-bar ${userData.adequacy_score >= 20 ? 'bg-success' : userData.adequacy_score >= 10 ? 'bg-warning' : 'bg-danger'}" 
+                                     style="width: ${((userData.adequacy_score + 24) / 48 * 100)}%">
+                                    ${userData.adequacy_score} - ${userData.adequacy_level}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <a href="/results/${userId}" class="btn btn-primary">Vezi Rezultate Complete</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            $('#userDetailsContent').html(html);
+            
+            // Create individual chart
+            const chartData = [{
+                x: ['Directiv', 'Persuasiv', 'Participativ', 'Delegativ'],
+                y: [userData.directiv_score || 0, userData.persuasiv_score || 0, 
+                    userData.participativ_score || 0, userData.delegativ_score || 0],
+                type: 'bar',
+                marker: { color: ['#17a2b8', '#28a745', '#ffc107', '#dc3545'] }
+            }];
+            
+            $('#userDetailsContent').append('<div id="userDetailChart" class="mt-3"></div>');
+            
+            Plotly.newPlot('userDetailChart', chartData, {
+                title: 'Distribuție Stiluri',
+                yaxis: { title: 'Scor', dtick: 1 },
+                height: 300
+            });
+        }
     });
 });
 </script>
