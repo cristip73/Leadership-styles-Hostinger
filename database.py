@@ -6,9 +6,9 @@ import os
 
 class Database:
     def __init__(self, db_path=None):
-        # Use DATABASE_PATH from environment, fallback to local instance folder
+        # Use DATABASE_PATH from environment, fallback to local data folder
         if db_path is None:
-            db_path = os.environ.get('DATABASE_PATH', 'instance/assessment.db')
+            db_path = os.environ.get('DATABASE_PATH', 'data/assessment.db')
         self.db_path = db_path
         
         # Create directory if it doesn't exist
