@@ -10,11 +10,11 @@ ENV/
 .venv/
 
 # Flask
-# data/  # Temporarily commented to include initial database
+data/
 .webassets-cache
 
 # Database
-# *.db  # Temporarily commented to include initial database
+*.db
 *.sqlite
 *.sqlite3
 
