@@ -1,16 +1,45 @@
 /* Custom styles for Management Style Assessment */
 
 :root {
-    --primary-color: #0066cc;
-    --secondary-color: #6c757d;
-    --success-color: #28a745;
-    --warning-color: #ffc107;
-    --danger-color: #dc3545;
+    /* Monochromatic Depth - Varianta 2 */
+    
+    /* Culori principale */
+    --background: #FAFBFC;
+    --surface: #FFFFFF;
+    --surface-hover: #F3F4F6;
+    --border: #E1E4E8;
+    
+    /* Text */
+    --text-primary: #0A1628;     /* Albastru foarte închis */
+    --text-secondary: #586069;   /* Albastru-gri */
+    --text-tertiary: #959DA5;    /* Gri-albastru deschis */
+    
+    /* Accent principal (nuanțe de albastru) */
+    --primary-color: #0061FE;    /* Albastru principal */
+    --primary-hover: #0051D3;
+    --primary-light: #F0F5FF;
+    --primary-lighter: #F7FAFF;
+    
+    /* Semantice monocromatice */
+    --secondary-color: #586069;  /* Albastru-gri */
+    --success-color: #165C7D;    /* Albastru-verzui închis */
+    --success-bg: #EBF5F7;
+    --warning-color: #6B5B95;    /* Mov-gri */
+    --warning-bg: #F4F1F8;
+    --danger-color: #4A5568;     /* Gri închis */
+    --danger-bg: #F1F2F4;
+    
+    /* Pentru grafice (gradient albastru) */
+    --chart-1: #0061FE;
+    --chart-2: #3B82F6;
+    --chart-3: #93BBFD;
+    --chart-4: #DBEAFE;
 }
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    background-color: #f8f9fa;
+    background-color: var(--background);
+    color: var(--text-primary);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -27,23 +56,25 @@ main {
 
 /* Cards */
 .card {
-    border: none;
+    border: 1px solid var(--border);
     border-radius: 10px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: var(--surface);
 }
 
 .card:hover {
     transform: translateY(-5px);
+    box-shadow: 0 4px 6px rgba(10, 22, 40, 0.1);
 }
 
 .shadow-lg {
-    box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important;
+    box-shadow: 0 10px 25px rgba(10, 22, 40, 0.08)!important;
 }
 
 /* Forms */
 .form-control:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(0,102,204,.25);
+    box-shadow: 0 0 0 0.2rem rgba(0, 97, 254, .15);
 }
 
 /* Assessment Questions */
@@ -58,14 +89,14 @@ main {
 
 .form-check {
     padding: 1rem;
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--border);
     border-radius: 8px;
     margin-bottom: 1rem;
     transition: all 0.3s ease;
 }
 
 .form-check:hover {
-    background-color: #f8f9fa;
+    background-color: var(--primary-lighter);
     border-color: var(--primary-color);
 }
 
@@ -112,10 +143,10 @@ main {
 }
 
 .btn-primary:hover {
-    background-color: #0052a3;
-    border-color: #0052a3;
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0,102,204,0.3);
+    box-shadow: 0 5px 15px rgba(0, 97, 254, 0.2);
 }
 
 /* Loading Spinner */
@@ -151,22 +182,168 @@ main {
     }
 }
 
-/* Adequacy Score Colors */
-.bg-high-adequacy {
-    background-color: var(--success-color);
-}
-
-.bg-medium-adequacy {
-    background-color: var(--warning-color);
-}
-
-.bg-low-adequacy {
-    background-color: var(--danger-color);
-}
-
 /* Footer */
 footer {
     margin-top: auto;
-    background-color: #f8f9fa;
-    border-top: 1px solid #dee2e6;
+    background-color: var(--surface);
+    border-top: 1px solid var(--border);
+}
+
+/* Bootstrap Overrides for Monochromatic Theme */
+
+/* Background colors - using intensity for hierarchy */
+.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+.bg-secondary {
+    background-color: var(--secondary-color) !important;
+}
+
+.bg-success {
+    background-color: var(--chart-1) !important;  /* Dark blue for excellent */
+}
+
+.bg-warning {
+    background-color: var(--chart-2) !important;  /* Medium blue for good */
+}
+
+.bg-danger {
+    background-color: var(--chart-3) !important;  /* Light blue for needs work */
+}
+
+.bg-info {
+    background-color: var(--chart-2) !important;
+}
+
+/* Text colors */
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.text-secondary {
+    color: var(--text-secondary) !important;
+}
+
+.text-success {
+    color: var(--chart-1) !important;
+}
+
+.text-warning {
+    color: var(--chart-2) !important;
+}
+
+.text-danger {
+    color: var(--text-tertiary) !important;
+}
+
+.text-muted {
+    color: var(--text-tertiary) !important;
+}
+
+/* Alert variations */
+.alert-info {
+    background-color: var(--primary-lighter);
+    border-color: var(--primary-light);
+    color: var(--text-primary);
+}
+
+/* Badge variations */
+.badge {
+    font-weight: 500;
+}
+
+.bg-primary.badge,
+.bg-secondary.badge,
+.bg-success.badge,
+.bg-warning.badge,
+.bg-danger.badge {
+    color: white;
+}
+
+/* Progress bar colors */
+.progress {
+    background-color: var(--surface-hover);
+}
+
+.progress-bar.bg-info {
+    background-color: var(--chart-1) !important;
+}
+
+.progress-bar.bg-success {
+    background-color: var(--chart-2) !important;
+}
+
+.progress-bar.bg-warning {
+    background-color: var(--chart-3) !important;
+}
+
+.progress-bar.bg-danger {
+    background-color: var(--chart-4) !important;
+}
+
+/* Button variations for semantic colors */
+.btn-success {
+    background-color: var(--chart-1);
+    border-color: var(--chart-1);
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+}
+
+.btn-info {
+    background-color: var(--chart-2);
+    border-color: var(--chart-2);
+    color: white;
+}
+
+.btn-info:hover {
+    background-color: var(--chart-1);
+    border-color: var(--chart-1);
+}
+
+.btn-danger {
+    background-color: var(--text-secondary);
+    border-color: var(--text-secondary);
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: var(--text-primary);
+    border-color: var(--text-primary);
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+/* Table hover state */
+.table-hover tbody tr:hover {
+    background-color: var(--primary-lighter);
+}
+
+/* Nav tabs */
+.nav-tabs .nav-link {
+    color: var(--text-secondary);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--primary-color);
+    border-color: var(--border) var(--border) var(--surface);
+    background-color: var(--surface);
+}
+
+.nav-tabs .nav-link:hover {
+    border-color: var(--border);
+    color: var(--primary-color);
 }

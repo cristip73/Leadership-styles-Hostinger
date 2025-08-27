@@ -13,11 +13,11 @@
         transition: all 0.3s;
     }
     .user-select-item:hover {
-        background-color: #f8f9fa;
+        background-color: #F7FAFF;
     }
     .selected-user {
-        background-color: #e3f2fd !important;
-        border-left: 4px solid #0066cc;
+        background-color: #F0F5FF !important;
+        border-left: 4px solid #0061FE;
     }
 </style>
 {% endblock %}
@@ -392,7 +392,7 @@ $(document).ready(function() {
                 y: [userData.directiv_score || 0, userData.persuasiv_score || 0, 
                     userData.participativ_score || 0, userData.delegativ_score || 0],
                 type: 'bar',
-                marker: { color: ['#17a2b8', '#28a745', '#ffc107', '#dc3545'] }
+                marker: { color: ['#0061FE', '#3B82F6', '#93BBFD', '#DBEAFE'] }
             }];
             
             $('#userDetailsContent').append('<div id="userDetailChart" class="mt-3"></div>');
