@@ -3,12 +3,21 @@ import uuid
 import re
 from datetime import datetime
 import os
+import shutil
 
 class Database:
     def __init__(self, db_path=None):
         # Use DATABASE_PATH from environment, fallback to local data folder
         if db_path is None:
             db_path = os.environ.get('DATABASE_PATH', 'data/assessment.db')
+            
+            # Auto-seed for dev environment if database doesn't exist
+            if not os.path.exists(db_path) and os.path.exists('seed/assessment.db'):
+                print("Initializing development database from seed...")
+                os.makedirs('data', exist_ok=True)
+                shutil.copy2('seed/assessment.db', db_path)
+                print(f"Database copied to {db_path}")
+        
         self.db_path = db_path
         
         # Create directory if it doesn't exist
