@@ -59,8 +59,6 @@ def register():
         session.permanent = True  # Make session permanent
         session.modified = True  # Force session to save
         
-        print(f"DEBUG: User registered: {user_id}")
-        print(f"DEBUG: Session initialized with user_id: {session.get('user_id')}")
         
         return jsonify({'success': True, 'user_id': str(user_id)})
     except ValueError as e:
@@ -72,58 +70,46 @@ def register():
 def submit_answer():
     """Submit answer for current question"""
     try:
-        print(f"DEBUG: Session at start - User: {session.get('user_id')}, Responses: {session.get('responses', {})}")
         
         if 'user_id' not in session:
-            print("DEBUG: No user_id in session!")
             return jsonify({'success': False, 'error': 'Not registered'}), 401
         
         data = request.json
         question_id = data.get('question_id')
         answer = data.get('answer', '').upper()
         
-        print(f"DEBUG: Received Q{question_id}: {answer}")
         
         if not answer or answer not in ['A', 'B', 'C', 'D']:
             return jsonify({'success': False, 'error': 'Invalid answer'}), 400
         
         # Save response to session
         if 'responses' not in session:
-            print("DEBUG: Creating new responses dict in session")
             session['responses'] = {}
         session['responses'][str(question_id)] = answer
         
         # Force session to save
         session.modified = True
         
-        print(f"DEBUG: Session responses count: {len(session['responses'])}")
-        print(f"DEBUG: Session contains: {list(session['responses'].keys())}")
-        print(f"DEBUG: Total questions: {len(QUESTIONS)}")
         
         # Save to database
         db.save_response(session['user_id'], question_id, answer)
         
         # Check if all questions answered
         if len(session['responses']) >= len(QUESTIONS):
-            print("DEBUG: All questions answered, calculating results...")
             # Calculate results
             scorer = AssessmentScorer()
             responses_dict = {int(k): v for k, v in session['responses'].items()}
             
-            print(f"DEBUG: Responses dict: {responses_dict}")
             
             # Get style scores
             primary_style, secondary_style = scorer.calculate_style_scores(responses_dict)
             adequacy_score, adequacy_tier = scorer.calculate_adequacy_score(responses_dict)
             
-            print(f"DEBUG: Primary: {primary_style}, Secondary: {secondary_style}")
-            print(f"DEBUG: Adequacy: {adequacy_score}, Level: {adequacy_tier}")
             
             # Get all style scores
             style_scores = scorer.get_all_style_scores([{'question_id': k, 'answer': v} 
                                                         for k, v in responses_dict.items()])
             
-            print(f"DEBUG: Style scores: {style_scores}")
             
             # Save results
             db.save_results(
@@ -135,7 +121,6 @@ def submit_answer():
                 style_scores
             )
             
-            print(f"DEBUG: Results saved! User ID: {session['user_id']}")
             
             return jsonify({
                 'success': True,
@@ -145,9 +130,6 @@ def submit_answer():
         
         return jsonify({'success': True, 'completed': False})
     except Exception as e:
-        print(f"ERROR: {str(e)}")
-        import traceback
-        traceback.print_exc()
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/results/<user_id>')

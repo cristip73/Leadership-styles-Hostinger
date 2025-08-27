@@ -1,51 +1,10 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-venv/
-env/
-ENV/
-.venv/
-
-# Flask
-data/
-.webassets-cache
-
-# Database
-*.db
-*.sqlite
-*.sqlite3
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-
-# Environment variables
-.env
-
-# Test coverage
-htmlcov/
-.coverage
-.coverage.*
-coverage.xml
-*.cover
-
-# Distribution / packaging
-dist/
-build/
-*.egg-info/
-
-# GPT5 generated docs
+*.png
+*.docx
+*.jpg
+*.jpeg
+*.gif
 gpt5_docs/
+venv/
+*.pyc
+__pycache__/
+.DS_Store
