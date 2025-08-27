@@ -206,3 +206,34 @@ class Database:
             raise e
         finally:
             conn.close()
+    
+    def get_all_results_with_responses(self):
+        """Get all results with raw response patterns"""
+        results = self.get_all_results()
+        
+        for result in results:
+            responses = self.get_user_responses(result['user_id'])
+            # Format as "1.A, 2.B, 3.C, ..."
+            response_pattern = ", ".join([f"{r['question_id']}.{r['answer']}" for r in responses])
+            result['response_pattern'] = response_pattern
+        
+        return results
+    
+    def delete_user_completely(self, user_id):
+        """Delete user and all associated data"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            # Delete in order: responses first (due to foreign key), then results, then user
+            cursor.execute("DELETE FROM responses WHERE user_id = ?", (str(user_id),))
+            cursor.execute("DELETE FROM results WHERE user_id = ?", (str(user_id),))
+            cursor.execute("DELETE FROM users WHERE id = ?", (str(user_id),))
+            
+            conn.commit()
+            return cursor.rowcount > 0
+        except Exception as e:
+            conn.rollback()
+            raise e
+        finally:
+            conn.close()

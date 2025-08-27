@@ -107,6 +107,7 @@
                                 <tr>
                                     <th>Nume</th>
                                     <th>Email</th>
+                                    <th>Raw Responses</th>
                                     <th>Stil Principal</th>
                                     <th>Stil Secundar</th>
                                     <th>Scor Adecvare</th>
@@ -117,9 +118,12 @@
                             </thead>
                             <tbody>
                                 {% for result in results %}
-                                <tr>
+                                <tr data-user-id="{{ result.user_id }}">
                                     <td>{{ result.first_name }} {{ result.last_name }}</td>
                                     <td>{{ result.email }}</td>
+                                    <td>
+                                        <small class="text-muted">{{ result.response_pattern }}</small>
+                                    </td>
                                     <td>
                                         <span class="badge bg-primary">{{ result.primary_style }}</span>
                                     </td>
@@ -134,9 +138,12 @@
                                     <td>{{ result.adequacy_level }}</td>
                                     <td>{{ result.created_at[:10] }}</td>
                                     <td>
-                                        <a href="{{ url_for('results', user_id=result.user_id) }}" class="btn btn-sm btn-outline-primary">
+                                        <a href="{{ url_for('results', user_id=result.user_id) }}" class="btn btn-sm btn-outline-primary me-1">
                                             Vezi
                                         </a>
+                                        <button class="btn btn-sm btn-outline-danger delete-user-btn" data-user-id="{{ result.user_id }}" data-user-name="{{ result.first_name }} {{ result.last_name }}">
+                                            🗑️
+                                        </button>
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -402,6 +409,43 @@ $(document).ready(function() {
                 yaxis: { title: 'Scor', dtick: 1 },
                 height: 300
             });
+        }
+    });
+    
+    // Delete user functionality
+    $(document).on('click', '.delete-user-btn', async function(e) {
+        e.preventDefault();
+        
+        const userId = $(this).data('user-id');
+        const userName = $(this).data('user-name');
+        
+        if (confirm(`Sunteți sigur că doriți să ștergeți utilizatorul "${userName}" și toate datele asociate? Această acțiune nu poate fi anulată.`)) {
+            try {
+                const response = await fetch(`/api/delete_user/${userId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Remove the row from the table
+                    $(`tr[data-user-id="${userId}"]`).fadeOut(300, function() {
+                        $(this).remove();
+                        
+                        // Update statistics cards
+                        const totalCard = $('.bg-primary .display-4');
+                        const currentTotal = parseInt(totalCard.text()) - 1;
+                        totalCard.text(currentTotal);
+                    });
+                } else {
+                    alert('Eroare la ștergere: ' + (result.error || 'Utilizatorul nu a fost găsit'));
+                }
+            } catch (error) {
+                alert('Eroare de conexiune la ștergere');
+            }
         }
     });
 });

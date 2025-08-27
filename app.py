@@ -181,7 +181,7 @@ def supervisor():
     if not session.get('supervisor_authenticated'):
         return render_template('supervisor_login.html')
     
-    results = db.get_all_results()
+    results = db.get_all_results_with_responses()
     return render_template('supervisor.html', results=results)
 
 @app.route('/api/supervisor_login', methods=['POST'])
@@ -285,6 +285,21 @@ def export_data(format):
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/delete_user/<user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    """Delete a user and all associated data"""
+    if not session.get('supervisor_authenticated'):
+        return jsonify({'error': 'Not authorized'}), 401
+    
+    try:
+        success = db.delete_user_completely(user_id)
+        if success:
+            return jsonify({'success': True})
+        else:
+            return jsonify({'success': False, 'error': 'User not found'}), 404
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/logout')
 def logout():
