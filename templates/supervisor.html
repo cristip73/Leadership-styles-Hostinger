@@ -41,35 +41,11 @@
     
     <!-- Statistics Cards -->
     <div class="row mb-4">
-        <div class="col-md-3">
+        <div class="col-sm-2">
             <div class="card bg-primary text-white">
                 <div class="card-body">
-                    <h5 class="card-title">Total Evaluări</h5>
-                    <h2 class="display-4">{{ results|length }}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Adecvare Excelentă</h5>
-                    <h2 class="display-4">{{ results|selectattr("adequacy_score", ">=", 20)|list|length }}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-warning text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Adecvare Bună</h5>
-                    <h2 class="display-4">{{ results|selectattr("adequacy_score", ">=", 10)|selectattr("adequacy_score", "<", 20)|list|length }}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-danger text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Necesită Dezvoltare</h5>
-                    <h2 class="display-4">{{ results|selectattr("adequacy_score", "<", 10)|list|length }}</h2>
+                    <h6 class="card-title">Total Evaluări</h6>
+                    <h4>{{ results|length }}</h4>
                 </div>
             </div>
         </div>
@@ -436,7 +412,7 @@ $(document).ready(function() {
                         $(this).remove();
                         
                         // Update statistics cards
-                        const totalCard = $('.bg-primary .display-4');
+                        const totalCard = $('.bg-primary h4');
                         const currentTotal = parseInt(totalCard.text()) - 1;
                         totalCard.text(currentTotal);
                     });
