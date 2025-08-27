@@ -125,6 +125,17 @@ main {
     padding: 1rem;
 }
 
+/* Export buttons styling */
+.btn.btn-success,
+.btn.btn-info {
+    border-radius: 8px;
+}
+
+/* Header action buttons */
+.d-flex .btn {
+    border-radius: 8px;
+}
+
 .dataTables_filter input {
     border-radius: 20px;
     padding: 0.375rem 1rem;
@@ -132,9 +143,18 @@ main {
 
 /* Buttons */
 .btn {
-    border-radius: 25px;
+    border-radius: 8px;
     padding: 0.5rem 1.5rem;
     transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+/* Table action buttons - smaller, more refined */
+.btn-sm {
+    border-radius: 6px;
+    padding: 0.35rem 0.8rem;
+    font-size: 0.875rem;
+    font-weight: 500;
 }
 
 .btn-primary {
@@ -251,6 +271,22 @@ footer {
 /* Badge variations */
 .badge {
     font-weight: 500;
+    border-radius: 6px;
+    padding: 0.35rem 0.6rem;
+}
+
+/* Table action buttons spacing and alignment */
+.table td {
+    vertical-align: middle;
+}
+
+.table .btn-group {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.table .btn + .btn {
+    margin-left: 0.25rem;
 }
 
 .bg-primary.badge,
@@ -316,15 +352,33 @@ footer {
     border-color: var(--text-primary);
 }
 
+/* Outline button improvements */
 .btn-outline-primary {
     color: var(--primary-color);
     border-color: var(--primary-color);
+    background-color: var(--primary-lighter);
 }
 
 .btn-outline-primary:hover {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
     color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 97, 254, 0.15);
+}
+
+.btn-outline-danger {
+    color: var(--text-secondary);
+    border-color: var(--text-tertiary);
+    background-color: var(--surface-hover);
+}
+
+.btn-outline-danger:hover {
+    background-color: var(--text-secondary);
+    border-color: var(--text-secondary);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(88, 96, 105, 0.15);
 }
 
 /* Table hover state */
