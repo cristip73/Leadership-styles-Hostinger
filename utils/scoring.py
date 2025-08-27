@@ -50,7 +50,7 @@ class AssessmentScorer:
 
         self.style_names = {
             "1": "Directiv",
-            "2": "Persuasiv",
+            "2": "Informativ",
             "3": "Participativ",
             "4": "Delegativ"
         }
@@ -77,7 +77,7 @@ class AssessmentScorer:
     def get_all_style_scores(self, responses: List[Dict]) -> Dict[str, int]:
         style_scores = {
             "Directiv": 0,
-            "Persuasiv": 0,
+            "Informativ": 0,
             "Participativ": 0,
             "Delegativ": 0
         }
@@ -129,7 +129,7 @@ Stil orientat spre control și structură, caracterizat prin:
 - Accent pe disciplină și ordine
 - Comunicare directă și precisă
             """,
-            "Persuasiv":
+            "Informativ":
             """
 Stil orientat spre convingere și motivare, caracterizat prin:
 - Explicarea detaliată a deciziilor

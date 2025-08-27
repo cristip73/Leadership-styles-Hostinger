@@ -69,7 +69,7 @@ class Database:
                 adequacy_score INTEGER NOT NULL,
                 adequacy_level TEXT NOT NULL,
                 directiv_score INTEGER,
-                persuasiv_score INTEGER,
+                informativ_score INTEGER,
                 participativ_score INTEGER,
                 delegativ_score INTEGER,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -135,11 +135,11 @@ class Database:
             cursor.execute(
                 '''INSERT INTO results 
                 (id, user_id, primary_style, secondary_style, adequacy_score, adequacy_level,
-                 directiv_score, persuasiv_score, participativ_score, delegativ_score)
+                 directiv_score, informativ_score, participativ_score, delegativ_score)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
                 (result_id, str(user_id), primary_style, secondary_style, 
                  adequacy_score, adequacy_level,
-                 style_scores['Directiv'], style_scores['Persuasiv'], 
+                 style_scores['Directiv'], style_scores['Informativ'], 
                  style_scores['Participativ'], style_scores['Delegativ'])
             )
             conn.commit()

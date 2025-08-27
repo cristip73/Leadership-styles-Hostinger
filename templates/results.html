@@ -21,20 +21,20 @@
                 </div>
                 
                 <!-- Primary Results -->
-                <div class="row mb-4">
-                    <div class="col-md-6">
+                <div class="row mb-4 justify-content-center">
+                    <div class="col-md-3">
                         <div class="card bg-primary text-white">
                             <div class="card-body text-center">
-                                <h5 class="card-title">Stil Principal</h5>
-                                <h2 class="display-4">{{ result.primary_style }}</h2>
+                                <h6 class="card-title">Stil Principal</h6>
+                                <h4>{{ result.primary_style }}</h4>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-3">
                         <div class="card bg-secondary text-white">
                             <div class="card-body text-center">
-                                <h5 class="card-title">Stil Secundar</h5>
-                                <h2 class="display-4">{{ result.secondary_style }}</h2>
+                                <h6 class="card-title">Stil Secundar</h6>
+                                <h4>{{ result.secondary_style }}</h4>
                             </div>
                         </div>
                     </div>
@@ -98,12 +98,12 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td><strong>Persuasiv</strong></td>
-                                        <td>{{ result.persuasiv_score }}</td>
-                                        <td>{{ (result.persuasiv_score / 12 * 100)|round(1) }}%</td>
+                                        <td><strong>Informativ</strong></td>
+                                        <td>{{ result.informativ_score }}</td>
+                                        <td>{{ (result.informativ_score / 12 * 100)|round(1) }}%</td>
                                         <td>
                                             <div class="progress">
-                                                <div class="progress-bar bg-success" style="width: {{ (result.persuasiv_score / 12 * 100) }}%"></div>
+                                                <div class="progress-bar bg-success" style="width: {{ (result.informativ_score / 12 * 100) }}%"></div>
                                             </div>
                                         </td>
                                     </tr>

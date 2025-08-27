@@ -160,10 +160,10 @@ def results(user_id):
         
         # Create chart data for Plotly
         style_data = {
-            'labels': ['Directiv', 'Persuasiv', 'Participativ', 'Delegativ'],
+            'labels': ['Directiv', 'Informativ', 'Participativ', 'Delegativ'],
             'values': [
                 result['directiv_score'],
-                result['persuasiv_score'],
+                result['informativ_score'],
                 result['participativ_score'],
                 result['delegativ_score']
             ]
@@ -223,7 +223,7 @@ def compare_profiles():
                     'primary_style': result['primary_style'],
                     'secondary_style': result['secondary_style'],
                     'directiv_score': result['directiv_score'] or 0,
-                    'persuasiv_score': result['persuasiv_score'] or 0,
+                    'informativ_score': result['informativ_score'] or 0,
                     'participativ_score': result['participativ_score'] or 0,
                     'delegativ_score': result['delegativ_score'] or 0,
                     'adequacy_score': result['adequacy_score'] or 0,
@@ -250,7 +250,7 @@ def export_data(format):
         # Select relevant columns
         columns = ['first_name', 'last_name', 'email', 'primary_style', 
                   'secondary_style', 'adequacy_score', 'adequacy_level',
-                  'directiv_score', 'persuasiv_score', 'participativ_score', 
+                  'directiv_score', 'informativ_score', 'participativ_score', 
                   'delegativ_score', 'created_at']
         
         df = df[columns]

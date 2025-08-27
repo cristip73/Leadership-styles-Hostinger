@@ -279,7 +279,7 @@ $(document).ready(function() {
     function displayComparison(data) {
         let html = '<div class="table-responsive mb-4">';
         html += '<table class="table table-bordered">';
-        html += '<thead><tr><th>Nume</th><th>Stil Principal</th><th>Directiv</th><th>Persuasiv</th><th>Participativ</th><th>Delegativ</th><th>Scor Adecvare</th></tr></thead>';
+        html += '<thead><tr><th>Nume</th><th>Stil Principal</th><th>Directiv</th><th>Informativ</th><th>Participativ</th><th>Delegativ</th><th>Scor Adecvare</th></tr></thead>';
         html += '<tbody>';
         
         data.forEach(user => {
@@ -287,7 +287,7 @@ $(document).ready(function() {
                 <td>${user.name}</td>
                 <td><span class="badge bg-primary">${user.primary_style}</span></td>
                 <td>${user.directiv_score}</td>
-                <td>${user.persuasiv_score}</td>
+                <td>${user.informativ_score}</td>
                 <td>${user.participativ_score}</td>
                 <td>${user.delegativ_score}</td>
                 <td><span class="badge ${user.adequacy_score >= 20 ? 'bg-success' : user.adequacy_score >= 10 ? 'bg-warning' : 'bg-danger'}">${user.adequacy_score}</span></td>
@@ -298,8 +298,8 @@ $(document).ready(function() {
         
         // Create comparison chart
         const traces = data.map(user => ({
-            x: ['Directiv', 'Persuasiv', 'Participativ', 'Delegativ'],
-            y: [user.directiv_score, user.persuasiv_score, user.participativ_score, user.delegativ_score],
+            x: ['Directiv', 'Informativ', 'Participativ', 'Delegativ'],
+            y: [user.directiv_score, user.informativ_score, user.participativ_score, user.delegativ_score],
             name: user.name,
             type: 'bar'
         }));
@@ -344,7 +344,7 @@ $(document).ready(function() {
                             <div class="col-md-6">
                                 <h6>Scoruri Detaliate</h6>
                                 <p>Directiv: ${userData.directiv_score || 0}</p>
-                                <p>Persuasiv: ${userData.persuasiv_score || 0}</p>
+                                <p>Informativ: ${userData.informativ_score || 0}</p>
                                 <p>Participativ: ${userData.participativ_score || 0}</p>
                                 <p>Delegativ: ${userData.delegativ_score || 0}</p>
                             </div>
@@ -371,8 +371,8 @@ $(document).ready(function() {
             
             // Create individual chart
             const chartData = [{
-                x: ['Directiv', 'Persuasiv', 'Participativ', 'Delegativ'],
-                y: [userData.directiv_score || 0, userData.persuasiv_score || 0, 
+                x: ['Directiv', 'Informativ', 'Participativ', 'Delegativ'],
+                y: [userData.directiv_score || 0, userData.informativ_score || 0, 
                     userData.participativ_score || 0, userData.delegativ_score || 0],
                 type: 'bar',
                 marker: { color: ['#0061FE', '#3B82F6', '#93BBFD', '#DBEAFE'] }
