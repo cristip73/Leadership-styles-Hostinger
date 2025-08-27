@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}500 - Eroare Server{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 text-center">
+        <h1 class="display-1">500</h1>
+        <h2 class="mb-4">Eroare Server</h2>
+        <p class="lead mb-4">A apărut o eroare pe server. Vă rugăm să încercați mai târziu.</p>
+        <a href="{{ url_for('index') }}" class="btn btn-primary">Înapoi la Pagina Principală</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}Rezultate - Evaluare Stil de Management{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card shadow mb-4">
+            <div class="card-body p-5">
+                <h1 class="display-5 text-center mb-4">Rezultatele Evaluării</h1>
+                
+                <!-- User Info -->
+                <div class="alert alert-info mb-4">
+                    <strong>Participant:</strong> {{ result.first_name }} {{ result.last_name }}<br>
+                    <strong>Email:</strong> {{ result.email }}<br>
+                    <strong>Data evaluării:</strong> {{ result.created_at }}
+                </div>
+                
+                <!-- Primary Results -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Stil Principal</h5>
+                                <h2 class="display-4">{{ result.primary_style }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-secondary text-white">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Stil Secundar</h5>
+                                <h2 class="display-4">{{ result.secondary_style }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Adequacy Score -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h4 class="card-title">Scor de Adecvare</h4>
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <div class="progress" style="height: 30px;">
+                                    <div class="progress-bar {% if result.adequacy_score >= 15 %}bg-success{% elif result.adequacy_score >= 6 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                         role="progressbar" 
+                                         style="width: {{ ((result.adequacy_score + 24) / 48 * 100) }}%">
+                                        {{ result.adequacy_score }}
+                                    </div>
+                                </div>
+                                <small class="text-muted">Interval: -24 până la +24</small>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <h3 class="{% if result.adequacy_score >= 15 %}text-success{% elif result.adequacy_score >= 6 %}text-warning{% else %}text-danger{% endif %}">
+                                    {{ result.adequacy_level }}
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Style Distribution Chart -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h4 class="card-title mb-3">Distribuția Stilurilor de Management</h4>
+                        <div id="styleChart" style="height: 400px;"></div>
+                    </div>
+                </div>
+                
+                <!-- Detailed Scores -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h4 class="card-title mb-3">Scoruri Detaliate</h4>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Stil</th>
+                                        <th>Scor</th>
+                                        <th>Procent</th>
+                                        <th>Vizualizare</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Directiv</strong></td>
+                                        <td>{{ result.directiv_score }}</td>
+                                        <td>{{ (result.directiv_score / 12 * 100)|round(1) }}%</td>
+                                        <td>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-info" style="width: {{ (result.directiv_score / 12 * 100) }}%"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Persuasiv</strong></td>
+                                        <td>{{ result.persuasiv_score }}</td>
+                                        <td>{{ (result.persuasiv_score / 12 * 100)|round(1) }}%</td>
+                                        <td>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-success" style="width: {{ (result.persuasiv_score / 12 * 100) }}%"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Participativ</strong></td>
+                                        <td>{{ result.participativ_score }}</td>
+                                        <td>{{ (result.participativ_score / 12 * 100)|round(1) }}%</td>
+                                        <td>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-warning" style="width: {{ (result.participativ_score / 12 * 100) }}%"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Delegativ</strong></td>
+                                        <td>{{ result.delegativ_score }}</td>
+                                        <td>{{ (result.delegativ_score / 12 * 100)|round(1) }}%</td>
+                                        <td>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-danger" style="width: {{ (result.delegativ_score / 12 * 100) }}%"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="text-center">
+                    <a href="{{ url_for('assessment') }}" class="btn btn-primary me-2">
+                        Evaluare Nouă
+                    </a>
+                    <button onclick="window.print()" class="btn btn-secondary">
+                        Printează Rezultatele
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Parse style data from backend
+const styleData = {{ style_data|safe }};
+
+// Create pie chart
+const pieData = [{
+    values: styleData.values,
+    labels: styleData.labels,
+    type: 'pie',
+    hole: .4,
+    marker: {
+        colors: ['#17a2b8', '#28a745', '#ffc107', '#dc3545']
+    }
+}];
+
+const pieLayout = {
+    title: 'Distribuția procentuală a stilurilor',
+    showlegend: true,
+    height: 400,
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)'
+};
+
+Plotly.newPlot('styleChart', pieData, pieLayout, {responsive: true});
+</script>
+{% endblock %}

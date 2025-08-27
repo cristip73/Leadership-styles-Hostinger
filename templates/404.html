@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}404 - Pagină Negăsită{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 text-center">
+        <h1 class="display-1">404</h1>
+        <h2 class="mb-4">Pagină Negăsită</h2>
+        <p class="lead mb-4">Ne pare rău, pagina pe care o căutați nu există.</p>
+        <a href="{{ url_for('index') }}" class="btn btn-primary">Înapoi la Pagina Principală</a>
+    </div>
+</div>
+{% endblock %}

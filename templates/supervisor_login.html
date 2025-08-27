@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Login Supervizor - Evaluare Stil de Management{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow">
+            <div class="card-body p-4">
+                <h2 class="card-title text-center mb-4">Autentificare Supervizor</h2>
+                
+                <div id="loginAlert" class="alert alert-danger d-none" role="alert">
+                    Parolă incorectă. Vă rugăm să încercați din nou.
+                </div>
+                
+                <form id="supervisorLoginForm">
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Parolă</label>
+                        <input type="password" class="form-control" id="password" required autofocus>
+                        <small class="text-muted">Introduceți parola de supervizor pentru a accesa panoul de administrare.</small>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">
+                        Autentificare
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('supervisorLoginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const password = document.getElementById('password').value;
+    const alertDiv = document.getElementById('loginAlert');
+    
+    try {
+        const response = await fetch('/api/supervisor_login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ password: password })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alertDiv.classList.remove('d-none');
+            document.getElementById('password').value = '';
+            document.getElementById('password').focus();
+        }
+    } catch (error) {
+        alertDiv.classList.remove('d-none');
+        alertDiv.textContent = 'Eroare de conexiune. Vă rugăm să încercați din nou.';
+    }
+});
+</script>
+{% endblock %}

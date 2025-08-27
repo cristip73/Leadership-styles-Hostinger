@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Acasă - Evaluare Stil de Management{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-lg">
+            <div class="card-body p-5">
+                <h1 class="display-4 text-center mb-4">Evaluare Stil de Management</h1>
+                
+                <p class="lead text-center mb-4">
+                    Bine ați venit la instrumentul de evaluare a stilului de management și adecvării.
+                </p>
+                
+                <p class="text-center mb-5">
+                    Această evaluare vă va ajuta să înțelegeți stilul dumneavoastră de management și eficacitatea acestuia.
+                </p>
+                
+                <div class="row mb-5">
+                    <div class="col-md-6">
+                        <div class="card bg-light h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">📋 Instrucțiuni</h5>
+                                <ul class="card-text">
+                                    <li>Evaluarea constă în 12 întrebări bazate pe scenarii</li>
+                                    <li>Fiecare întrebare are 4 răspunsuri posibile</li>
+                                    <li>Alegeți răspunsul care reflectă cel mai bine modul în care ați acționa</li>
+                                    <li>Completați toate întrebările pentru a primi rezultatele</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card bg-light h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">🎯 Ce veți afla</h5>
+                                <ul class="card-text">
+                                    <li>Stilurile dumneavoastră primare și secundare de management</li>
+                                    <li>Scorul de adecvare al managementului</li>
+                                    <li>Interpretarea detaliată a rezultatelor</li>
+                                    <li>Recomandări pentru îmbunătățire</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <a href="{{ url_for('assessment') }}" class="btn btn-primary btn-lg px-5">
+                        Începeți Evaluarea
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
