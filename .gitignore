@@ -8,3 +8,21 @@ venv/
 *.pyc
 __pycache__/
 .DS_Store
+
+# Environment variables
+.env
+.env.*
+*.env
+
+# Database
+instance/
+*.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
